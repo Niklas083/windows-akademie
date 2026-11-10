@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Windows Server Admin-Akademie – Lernspiel</title>
+<style>
+:root{--bg:#0b1220;--bg2:#111a2e;--card:#16213a;--card2:#1c2a48;--line:#2a3a5e;--tx:#e8eefc;--mut:#9fb0d3;--acc:#3b82f6;--acc2:#22d3ee;--ok:#22c55e;--bad:#ef4444;--warn:#f59e0b;--r:16px}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:radial-gradient(1200px 600px at 80% -10%,#1d3b75 0,transparent 60%),radial-gradient(900px 500px at -10% 10%,#0f3a4a 0,transparent 55%),var(--bg);color:var(--tx);min-height:100vh;line-height:1.5}
+a{color:var(--acc2)}
+code{font-family:Consolas,"Cascadia Mono",monospace;background:#0a1428;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:.88em;color:#9be7ff;word-break:break-word}
+header{position:sticky;top:0;z-index:10;backdrop-filter:blur(12px);background:rgba(11,18,32,.78);border-bottom:1px solid var(--line)}
+.bar{max-width:1180px;margin:auto;display:flex;align-items:center;gap:14px;padding:12px 20px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;cursor:pointer;letter-spacing:.2px}
+.logo svg{width:30px;height:30px}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+nav button,.btn{border:1px solid var(--line);background:var(--card);color:var(--tx);padding:8px 14px;border-radius:10px;cursor:pointer;font:inherit;font-size:.92rem;transition:.15s}
+nav button:hover,.btn:hover{border-color:var(--acc);background:var(--card2)}
+nav button.on{background:var(--acc);border-color:var(--acc)}
+.btn.pri{background:linear-gradient(135deg,var(--acc),#6366f1);border:0;font-weight:600}
+.btn.pri:hover{filter:brightness(1.1)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.xp{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--mut)}
+.xp b{color:var(--tx)}
+.xpbar{width:90px;height:7px;background:var(--line);border-radius:9px;overflow:hidden}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc2),var(--acc))}
+main{max-width:1180px;margin:auto;padding:26px 20px 80px}
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center;background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(34,211,238,.06));border:1px solid var(--line);border-radius:24px;padding:34px}
+.hero h1{font-size:2.2rem;line-height:1.15;margin:.2em 0 .4em}
+.hero p{color:var(--mut);margin:0 0 18px}
+.tag{display:inline-block;font-size:.75rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--acc2);font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.stat b{font-size:1.6rem;display:block}
+.stat span{color:var(--mut);font-size:.85rem}
+h2{font-size:1.35rem;margin:30px 0 6px}
+.sub{color:var(--mut);margin:0 0 16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.mod{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;cursor:pointer;transition:.18s;position:relative;overflow:hidden}
+.mod:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.mod .no{font-size:.75rem;color:var(--acc2);font-weight:700;letter-spacing:1px}
+.mod h3{margin:4px 0 6px;font-size:1.05rem}
+.mod p{margin:0 0 14px;color:var(--mut);font-size:.88rem}
+.mod .meta{display:flex;justify-content:space-between;font-size:.8rem;color:var(--mut)}
+.prog{height:6px;background:var(--line);border-radius:9px;overflow:hidden;margin-top:8px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),var(--acc2));transition:width .4s}
+.badge{position:absolute;top:14px;right:14px;font-size:.72rem;padding:3px 8px;border-radius:20px;background:rgba(34,197,94,.15);color:var(--ok);border:1px solid rgba(34,197,94,.4)}
+.badge.ihk{background:rgba(245,158,11,.12);color:var(--warn);border-color:rgba(245,158,11,.4)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px}
+.tabs{display:flex;gap:6px;margin:16px 0;flex-wrap:wrap}
+.crumb{color:var(--mut);font-size:.88rem;cursor:pointer}
+.flip{perspective:1400px;height:300px;cursor:pointer;margin:10px 0 16px}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:20px;display:flex;flex-direction:column;justify-content:center;padding:30px;border:1px solid var(--line);overflow:auto}
+.front{background:linear-gradient(135deg,#1e3a8a,#0e7490);align-items:center;text-align:center}
+.front h3{font-size:1.7rem;margin:0}
+.front small{color:#cfe3ff;margin-top:12px}
+.back{background:var(--card2);transform:rotateY(180deg);font-size:1.02rem}
+.back h4{margin:0 0 10px;color:var(--acc2)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sp{flex:1}
+.opt{display:block;width:100%;text-align:left;margin:8px 0;padding:13px 16px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--tx);font:inherit;cursor:pointer;transition:.15s}
+.opt:hover:not(:disabled){border-color:var(--acc)}
+.opt.ok{border-color:var(--ok);background:rgba(34,197,94,.14)}
+.opt.bad{border-color:var(--bad);background:rgba(239,68,68,.14)}
+.expl{margin-top:12px;padding:12px 14px;border-left:3px solid var(--acc2);background:rgba(34,211,238,.07);border-radius:8px;font-size:.93rem}
+.src{font-size:.75rem;color:var(--mut);margin-top:6px}
+.qhead{display:flex;justify-content:space-between;color:var(--mut);font-size:.85rem;margin-bottom:6px}
+.qtext{font-size:1.15rem;font-weight:600;margin:6px 0 10px}
+.drag{list-style:none;padding:0;margin:12px 0}
+.drag li{display:flex;align-items:center;gap:10px;padding:12px 14px;margin:7px 0;background:var(--bg2);border:1px solid var(--line);border-radius:12px}
+.drag li .n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--card2);font-size:.8rem;flex:none}
+.drag li .t{flex:1}
+.drag li button{border:1px solid var(--line);background:var(--card);color:var(--tx);border-radius:8px;width:32px;height:30px;cursor:pointer}
+.drag li.ok{border-color:var(--ok)}.drag li.bad{border-color:var(--bad)}
+.term{background:#0c0c0c;border-radius:14px;border:1px solid #333;font-family:Consolas,"Cascadia Mono",monospace;font-size:.88rem;overflow:hidden}
+.term .tb{background:#1f1f1f;padding:8px 12px;color:#ccc;font-family:"Segoe UI",sans-serif;font-size:.8rem;display:flex;gap:8px;align-items:center}
+.term .tb i{width:11px;height:11px;border-radius:50%;display:inline-block}
+.term pre{margin:0;padding:14px;height:330px;overflow:auto;white-space:pre-wrap;color:#d4d4d4}
+.term .inp{display:flex;padding:0 14px 14px;color:#d4d4d4}
+.term input{flex:1;background:transparent;border:0;outline:0;color:#fff;font:inherit;margin-left:6px}
+.task{padding:10px 14px;border-radius:10px;border:1px solid var(--line);margin:6px 0;font-size:.9rem;background:var(--bg2)}
+.task.done{border-color:var(--ok);color:var(--ok)}
+.two{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+.result{text-align:center;padding:30px}
+.ring{width:150px;height:150px;margin:0 auto 14px}
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.78rem;border:1px solid var(--line);color:var(--mut)}
+.note{font-size:.85rem;color:var(--mut);border:1px dashed var(--line);border-radius:12px;padding:12px 14px;margin-top:18px}
+.scen{background:var(--bg2);border-radius:14px;padding:16px;border:1px solid var(--line);margin-bottom:12px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--acc);padding:10px 18px;border-radius:12px;transition:.3s;z-index:50}
+.toast.on{transform:translateX(-50%) translateY(0)}
+@media(max-width:820px){.hero,.two{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:1.7rem}.flip{height:360px}}
+</style>
+</head>
+<body>
+<header><div class="bar">
+<div class="logo" onclick="go('home')"><svg viewBox="0 0 32 32"><rect x="2" y="2" width="13" height="13" rx="2" fill="#3b82f6"/><rect x="17" y="2" width="13" height="13" rx="2" fill="#22d3ee"/><rect x="2" y="17" width="13" height="13" rx="2" fill="#22d3ee"/><rect x="17" y="17" width="13" height="13" rx="2" fill="#6366f1"/></svg>Admin-Akademie</div>
+<nav id="nav"></nav>
+<div class="xp" id="xp"></div>
+</div></header>
+<main id="app"></main>
+<div class="toast" id="toast"></div>
+<script>
+const MODS=[{id:'w1',t:'Installation & Server-Manager',d:'Editionen, Desktopdarstellung vs. Core, Erstkonfiguration, Rollen und Features.',cards:[
+['Editionen','<b>Standard</b>: physisch + 2 VMs je Lizenz. <b>Datacenter</b>: unbegrenzt VMs, Storage Spaces Direct, Shielded VMs. <b>Essentials</b>: kleine Firmen.'],
+['Desktopdarstellung vs. Core','<b>Desktopdarstellung</b>: grafische Oberfläche mit Server-Manager. <b>Server Core</b>: ohne GUI, kleinere Angriffsfläche, weniger Updates; Verwaltung über <code>sconfig</code>, PowerShell oder remote.'],
+['Erstkonfiguration','1. Servername vergeben und neu starten · 2. <b>statische IP</b> · 3. DNS-Server eintragen (beim DC: sich selbst) · 4. Zeitzone · 5. Updates · 6. erst danach Rollen.'],
+['Server-Manager','Dashboard: <i>Lokalen Server konfigurieren</i>, <i>Rollen und Features hinzufügen</i>, <i>Weitere Server zum Verwalten hinzufügen</i>. Unter <b>Tools</b> liegen alle Verwaltungskonsolen.'],
+['Rollen vs. Features','<b>Rolle</b> = Hauptaufgabe des Servers für das Netz (AD DS, DNS, DHCP, Datei-/Druckdienste). <b>Feature</b> = Zusatzfunktion (Windows Server-Sicherung, Telnet-Client, BitLocker, Gruppenrichtlinienverwaltung).'],
+['Warum statische IP?','Clients finden Server über DNS bzw. DHCP-Optionen. Ändert sich die Adresse eines DC/DNS-Servers, schlägt Namensauflösung und Anmeldung fehl.'],
+['Umbenennen vor der Rolle','Servername vor dem Heraufstufen zum DC festlegen. Ein späteres Umbenennen eines DC ist aufwendig (netdom, DNS, SPNs).'],
+['PowerShell-Grundlagen','<code>Rename-Computer -NewName DC01 -Restart</code><br><code>New-NetIPAddress -InterfaceAlias Ethernet -IPAddress 192.168.153.10 -PrefixLength 24 -DefaultGateway 192.168.153.1</code><br><code>Install-WindowsFeature AD-Domain-Services -IncludeManagementTools</code>'],
+['Testumgebung','Nur in isoliertem VM-Netz üben (internes/Host-only-Netz). Ein Test-DHCP im Firmennetz kann echte Clients falsch adressieren.']],
+q:[
+['Welche Reihenfolge ist nach der Installation sinnvoll?',['Name, statische IP, DNS, dann Rollen','Rollen, dann Name, dann IP','DHCP-Rolle zuerst, IP egal','Domäne beitreten, dann Name ändern'],0,'Name und Netzwerk zuerst, Rollen danach.','Kursskript'],
+['Was kennzeichnet Server Core?',['Keine GUI, kleinere Angriffsfläche','Nur für Clients','Kann keine Rollen','Nur Datacenter'],0,'Core hat keine Desktopdarstellung, Verwaltung per sconfig/PowerShell/remote.','Ergänzung'],
+['Was ist ein Feature, keine Rolle?',['Windows Server-Sicherung','DHCP-Server','DNS-Server','AD DS'],0,'Server-Sicherung ist ein Feature.','Kursskript'],
+['Wo installiert man Rollen grafisch?',['Server-Manager → Verwalten → Rollen und Features hinzufügen','Systemsteuerung → Drucker','Ereignisanzeige','Datenträgerverwaltung'],0,'Assistent im Server-Manager.','Kursskript'],
+['Welche DNS-Adresse trägt ein DC mit DNS-Rolle bei sich ein?',['Eigene IP bzw. 127.0.0.1 zusätzlich','8.8.8.8','Die des Routers','Keine'],0,'Der DC muss sich selbst für AD-Einträge fragen.','Kursskript'],
+['Welche Edition erlaubt unbegrenzt viele Windows-VMs je Lizenz?',['Datacenter','Standard','Essentials','Home'],0,'Datacenter = unbegrenzte Virtualisierungsrechte.','Ergänzung'],
+['Mit welchem Cmdlet installiert man eine Rolle?',['Install-WindowsFeature','Add-Role','Set-Service','Enable-Server'],0,'Install-WindowsFeature (Alias Add-WindowsFeature).','Ergänzung'],
+['Warum sollte ein Server eine feste IP haben?',['Damit Dienste/Clients ihn zuverlässig erreichen','Weil DHCP verboten ist','Für schnelleres Booten','Wegen der Lizenz'],0,'Erreichbarkeit und DNS-Konsistenz.','Kursskript']],
+ord:[['Erstkonfiguration eines neuen Servers',['Servername vergeben und neu starten','Statische IPv4-Adresse konfigurieren','DNS-Server eintragen','Updates installieren','Rolle über den Server-Manager hinzufügen']]]},
+{id:'w2',t:'Active Directory & Domäne',d:'Domäne, Gesamtstruktur, Domänencontroller, Globaler Katalog, FSMO und Replikation.',cards:[
+['Domäne','Eine Domäne definiert einen <b>Sicherheitsbereich</b> und eine Verwaltungseinheit. Alle Objekte (Benutzer, Computer, Gruppen) liegen in einer gemeinsamen Datenbank (NTDS.dit).'],
+['Arbeitsgruppe vs. Domäne','<b>Arbeitsgruppe</b>: jeder PC verwaltet Konten lokal in der SAM. <b>Domäne</b>: zentrale Anmeldung und Verwaltung über DCs.'],
+['Gesamtstruktur, Struktur, Domäne','<b>Gesamtstruktur (Forest)</b>: oberste Ebene, gemeinsames Schema, gemeinsamer globaler Katalog. <b>Struktur (Tree)</b>: Domänen mit zusammenhängendem Namensraum. <b>Domäne</b>: z. B. <code>schulung.int</code>.'],
+['Domänencontroller','Speichert eine Kopie des AD und authentifiziert Benutzer (Kerberos). Alle DCs einer Domäne sind an der <b>Replikation</b> beteiligt (Multi-Master).'],
+['Heraufstufen','Rolle AD DS installieren → <i>Server zu einem Domänencontroller heraufstufen</i> → neue Gesamtstruktur, Stammdomänenname, Funktionsebene, DNS + GC, <b>DSRM-Kennwort</b> → Voraussetzungsprüfung → Neustart.'],
+['Globaler Katalog','Enthält eine Teilkopie aller Objekte der Gesamtstruktur, wird für Suche und Anmeldung (universelle Gruppen) benötigt.'],
+['FSMO-Rollen','Gesamtstruktur: <b>Schemamaster</b>, <b>Domänennamenmaster</b>. Domäne: <b>RID-Master</b>, <b>PDC-Emulator</b> (Zeit, Kennwortänderungen), <b>Infrastrukturmaster</b>. Abfrage: <code>netdom query fsmo</code>.'],
+['Standorte','Standorte bilden physische Netze (Subnetze) ab. Über <b>Standortverknüpfungen</b> mit Kosten und Replikationsintervall steuert man die Replikation über WAN.'],
+['Diagnose','<code>dcdiag</code> prüft den DC, <code>repadmin /replsummary</code> die Replikation. DSRM-Kennwort sicher dokumentieren.']],
+q:[
+['Was definiert eine Domäne?',['Einen Sicherheits- und Verwaltungsbereich','Ein physisches Subnetz','Einen Druckerpool','Eine Freigabe'],0,'Domäne = Sicherheitsbereich.','Kursskript'],
+['Wo liegen Konten in einer Arbeitsgruppe?',['In der lokalen SAM jedes PCs','Im globalen Katalog','Auf dem DC','In DNS'],0,'Ohne Domäne lokal in der SAM.','Kursskript'],
+['Was teilen alle Domänen einer Gesamtstruktur?',['Schema und globalen Katalog','Dasselbe Kennwort','Dieselbe IP','Denselben DHCP-Bereich'],0,'Gemeinsames Schema, gemeinsamer GC.','Kursskript'],
+['Wofür wird das DSRM-Kennwort benötigt?',['Wiederherstellungsmodus für Verzeichnisdienste','Anmeldung am Client','WLAN','BitLocker'],0,'Directory Services Restore Mode.','Ergänzung'],
+['Welche FSMO-Rolle ist Zeitquelle der Domäne?',['PDC-Emulator','RID-Master','Schemamaster','Infrastrukturmaster'],0,'Der PDC-Emulator der Stammdomäne synchronisiert mit externer Quelle.','Ergänzung'],
+['Wozu dienen Standortverknüpfungen?',['Replikation zwischen Standorten steuern (Kosten, Intervall)','Drucker verteilen','DNS weiterleiten','Profile speichern'],0,'Kosten und Häufigkeit der Replikation.','Kursskript'],
+['Welcher Befehl prüft den Zustand eines DC?',['dcdiag','ping /dc','ipconfig /dc','chkdsk'],0,'dcdiag = Domain Controller Diagnostic.','Kursskript'],
+['Welches Protokoll nutzt AD primär zur Anmeldung?',['Kerberos','Telnet','FTP','SNMP'],0,'Kerberos, Fallback NTLM.','Ergänzung'],
+['Wie repliziert AD zwischen DCs einer Domäne?',['Multi-Master: Änderungen an jedem DC möglich','Nur vom ersten DC','Gar nicht','Nur manuell'],0,'Alle DCs sind gleichberechtigt (außer FSMO).','Kursskript']],
+ord:[['DC heraufstufen',['Rolle AD DS installieren','Heraufstufen starten','Neue Gesamtstruktur und Stammdomänenname festlegen','Funktionsebene, DNS/GC und DSRM-Kennwort','Voraussetzungsprüfung und Installation','Neustart und Anmeldung als Domänenadministrator']]]},
+{id:'w3',t:'DNS',d:'Forward- und Reverse-Lookupzonen, Eintragstypen, AD-integrierte Zonen, Weiterleitungen und Diagnose.',cards:[
+['Aufgabe','DNS löst Namen in IP-Adressen auf (und umgekehrt). AD ist ohne DNS nicht funktionsfähig: Clients finden DCs über <b>SRV-Einträge</b>.'],
+['Forward-Lookupzone','Name → IP. Wird beim Heraufstufen für die Domäne automatisch angelegt.'],
+['Reverse-Lookupzone','IP → Name (PTR). <b>Muss selbst angelegt werden</b>: DNS-Manager → Reverse-Lookupzonen → Neue Zone → IPv4 → Netzwerk-ID <code>192.168.153</code>.'],
+['Eintragstypen','<b>A</b> IPv4 · <b>AAAA</b> IPv6 · <b>PTR</b> Reverse · <b>CNAME</b> Alias · <b>MX</b> Mailserver · <b>SRV</b> Dienst (z. B. _ldap._tcp) · <b>NS</b> Nameserver · <b>SOA</b> Zonenautorität.'],
+['AD-integrierte Zone','Zonendaten liegen im AD und werden mit ihm repliziert. Ermöglicht <b>sichere dynamische Updates</b>. Replikationsbereich: alle DNS-Server der Domäne oder Gesamtstruktur.'],
+['Weiterleitungen','Unbekannte Namen (Internet) fragt der DNS-Server bei einer <b>Weiterleitung</b> (z. B. Router/Provider) an. Alternative: Stammhinweise. Bedingte Weiterleitung für Partnerdomänen.'],
+['Diagnose','<code>nslookup dc01.schulung.int</code> · <code>nslookup 192.168.153.10</code> (braucht PTR) · <code>ipconfig /flushdns</code> · <code>ipconfig /registerdns</code> · <code>Resolve-DnsName</code>.'],
+['Typischer Fehler','„Der vollqualifizierte Domänenname des Servers ist nicht verfügbar“ bei nslookup → Reverse-Lookupzone/PTR fehlt.']],
+q:[
+['Was übersetzt eine Reverse-Lookupzone?',['IP-Adressen in Namen','Namen in IP-Adressen','MAC in IP','Benutzer in Gruppen'],0,'Reverse = PTR, IP → Name.','Kursskript'],
+['Welche Zone muss man nach dem Heraufstufen selbst erstellen?',['Reverse-Lookupzone','Forward-Lookupzone der Domäne','_msdcs-Zone','Keine'],0,'Forward entsteht automatisch, Reverse nicht.','Kursskript'],
+['Wie finden Clients einen Domänencontroller?',['Über SRV-Einträge im DNS','Über Broadcast an DHCP','Über MX','Über ARP'],0,'_ldap._tcp.dc._msdcs.<domäne>.','Ergänzung'],
+['Welcher Eintrag ist ein Alias?',['CNAME','PTR','SOA','MX'],0,'CNAME verweist auf einen anderen Namen.','Kursskript'],
+['Vorteil einer AD-integrierten Zone?',['Replikation mit AD und sichere dynamische Updates','Kein DNS-Server nötig','Schnelleres WLAN','Keine Einträge nötig'],0,'Zonendaten im AD.','Kursskript'],
+['nslookup meldet „FQDN des Servers nicht verfügbar“. Ursache?',['PTR-Eintrag/Reverse-Zone fehlt','DHCP aus','Falsche Zeitzone','Kein Drucker'],0,'nslookup fragt zuerst den Namen des DNS-Servers per PTR ab.','Kursskript'],
+['Wofür ist eine Weiterleitung?',['Unbekannte (externe) Namen an anderen DNS-Server übergeben','Mails weiterleiten','Ports freigeben','Profile kopieren'],0,'Forwarder für Internetauflösung.','Ergänzung'],
+['Welcher Befehl leert den DNS-Cache des Clients?',['ipconfig /flushdns','ipconfig /release','nslookup /clear','dnscmd /reset'],0,'flushdns löscht den Resolver-Cache.','Ergänzung'],
+['Welcher Eintrag nennt den Mailserver einer Domäne?',['MX','A','NS','TXT'],0,'Mail Exchanger.','Ergänzung']],
+ord:[['Reverse-Lookupzone anlegen',['DNS-Manager öffnen','Rechtsklick Reverse-Lookupzonen → Neue Zone','Primäre Zone, im AD speichern','IPv4-Reverse-Lookupzone wählen','Netzwerk-ID 192.168.153 eingeben','Nur sichere dynamische Updates zulassen','PTR mit nslookup testen']]]},
+{id:'w4',t:'DHCP',d:'DORA, Bereiche, Ausschlüsse, Reservierungen, Optionen, Autorisierung und Failover.',cards:[
+['DORA','<b>Discover</b> (Client, Broadcast) → <b>Offer</b> (Server) → <b>Request</b> (Client) → <b>Acknowledge</b> (Server). UDP 67 Server / 68 Client.'],
+['Bereich (Scope)','Ein Bereich ist eine Reihe von IP-Adressen, die Clients zugewiesen werden, z. B. <code>192.168.153.100–200 /24</code>. Nach dem Anlegen muss er <b>aktiviert</b> werden.'],
+['Autorisierung','In einer Domäne muss der DHCP-Server im AD <b>autorisiert</b> werden, sonst verteilt er keine Adressen (Schutz vor fremden DHCP-Servern).'],
+['Ausschlüsse & Reservierungen','<b>Ausschluss</b>: Adressen im Bereich, die nie vergeben werden (z. B. statische Server). <b>Reservierung</b>: feste Adresse für eine bestimmte <b>MAC-Adresse</b> (z. B. Drucker).'],
+['Optionen','<b>003</b> Router (Gateway) · <b>006</b> DNS-Server · <b>015</b> DNS-Domänenname. Ebenen: Server-, Bereichs-, Reservierungsoptionen (spezifischer gewinnt).'],
+['Leasedauer','Standard 8 Tage. Verlängerung bei 50 % (T1) und 87,5 % (T2) der Laufzeit.'],
+['DHCP-Failover','Zwei Server teilen Bereiche: <b>Lastenausgleich</b> (z. B. 50/50) oder <b>Hot Standby</b>. Bereiche werden auf dem Partnerserver aktiviert.'],
+['APIPA','Kein DHCP erreichbar → Client vergibt sich <code>169.254.x.x</code>. Zeichen für DHCP-/Netzproblem.'],
+['Befehle','<code>ipconfig /release</code> · <code>ipconfig /renew</code> · <code>Get-DhcpServerv4Lease -ScopeId 192.168.153.0</code>']],
+q:[
+['Richtige Reihenfolge des DHCP-Ablaufs?',['Discover, Offer, Request, Acknowledge','Offer, Discover, Ack, Request','Request, Offer, Discover, Ack','Discover, Request, Offer, Ack'],0,'DORA.','Kursskript'],
+['Was muss nach dem Anlegen eines Bereichs passieren?',['Bereich aktivieren','Server neu installieren','DNS löschen','Client neu starten'],0,'Ohne Aktivierung keine Vergabe.','Kursskript'],
+['Warum verteilt ein neuer DHCP-Server in der Domäne nichts?',['Nicht im AD autorisiert','Zu wenig RAM','Falsches Hintergrundbild','Kein Drucker'],0,'Autorisierung erforderlich.','Kursskript'],
+['Ein Drucker soll immer dieselbe Adresse per DHCP erhalten.',['Reservierung anhand der MAC','Ausschluss','Neuer Bereich','APIPA'],0,'Reservierung = MAC → feste IP.','Kursskript'],
+['Welche Option liefert das Standardgateway?',['003 Router','006 DNS','015 Domänenname','044 WINS'],0,'Option 3.','Kursskript'],
+['Client hat 169.254.12.7. Was bedeutet das?',['Kein DHCP-Server erreichbar (APIPA)','Korrekte Adresse','IPv6','Reservierung'],0,'Automatische private Adressierung.','Ergänzung'],
+['Wann versucht ein Client erstmals, das Lease zu verlängern?',['Bei 50 % der Leasedauer','Bei 10 %','Erst nach Ablauf','Nie'],0,'T1 = 50 %.','Ergänzung'],
+['Was bewirkt ein Ausschluss?',['Adressen im Bereich werden nicht vergeben','Ein Client wird gesperrt','DNS wird abgeschaltet','Das Lease verdoppelt sich'],0,'Für statisch adressierte Geräte.','Kursskript'],
+['Welche Failover-Modi gibt es?',['Lastenausgleich und Hot Standby','RAID 1 und RAID 5','Push und Pull','Voll und Inkrementell'],0,'Zwei DHCP-Failover-Modi.','Kursskript']],
+ord:[['DHCP einrichten',['Rolle DHCP-Server installieren','Konfiguration abschließen / im AD autorisieren','Neuen Bereich anlegen (Start-/Endadresse, Maske)','Ausschlüsse und Leasedauer festlegen','Optionen 003, 006, 015 setzen','Bereich aktivieren','Client mit ipconfig /renew testen']]]},
+{id:'w5',t:'Benutzer, Gruppen & OUs',d:'ADUC, Organisationseinheiten, Gruppenbereiche, AGDLP und Benutzerverwaltung per PowerShell.',cards:[
+['ADUC','<b>Active Directory-Benutzer und -Computer</b> (dsa.msc): Benutzer, Gruppen, Computer und OUs anlegen und verwalten.'],
+['Organisationseinheit (OU)','Container zur Strukturierung (z. B. nach Abteilung oder Standort). An OUs werden <b>GPOs verknüpft</b> und Verwaltungsrechte <b>delegiert</b>. Schutz vor versehentlichem Löschen aktivieren.'],
+['Gruppentypen','<b>Sicherheitsgruppe</b>: für Berechtigungen. <b>Verteilergruppe</b>: nur E-Mail-Verteiler.'],
+['Gruppenbereiche','<b>Domänenlokal</b>: Berechtigungen auf Ressourcen der eigenen Domäne. <b>Global</b>: Benutzer der eigenen Domäne bündeln. <b>Universal</b>: gesamtstrukturweit, im globalen Katalog.'],
+['AGDLP','<b>A</b>ccounts → <b>G</b>lobale Gruppen → <b>D</b>omänen<b>l</b>okale Gruppen → <b>P</b>ermissions. Beispiel: Benutzer in GG_Vertrieb, GG_Vertrieb in DL_Vertrieb_RW, DL_Vertrieb_RW erhält Ändern auf den Ordner.'],
+['Vordefinierte Konten','Lokale Konten (Administrator, Gast) liegen in der SAM. Im AD: Domänen-Admins, Domänen-Benutzer, Organisations-Admins, Schema-Admins.'],
+['Vorlagenbenutzer','Ein deaktivierter Vorlagenbenutzer mit Gruppen, Profilpfad und Basisordner wird kopiert → neue Benutzer erhalten gleiche Einstellungen.'],
+['PowerShell','<code>New-ADOrganizationalUnit -Name Vertrieb</code><br><code>New-ADUser -Name "Max Muster" -SamAccountName mmuster -Path "OU=Vertrieb,DC=schulung,DC=int" -Enabled $true -AccountPassword (Read-Host -AsSecureString)</code><br><code>Add-ADGroupMember GG_Vertrieb mmuster</code>'],
+['Kennwortrichtlinie','Kennwortlänge, Komplexität, Kontosperrung in der <b>Default Domain Policy</b>. Abweichende Regeln: <b>Fine-Grained Password Policies</b> (PSO).']],
+q:[
+['Wofür nutzt man OUs vor allem?',['GPO-Verknüpfung und Delegierung','Berechtigungen auf Ordner','E-Mail-Verteiler','IP-Vergabe'],0,'OUs sind keine Sicherheitsprinzipale.','Kursskript'],
+['Was bedeutet AGDLP?',['Accounts → Global → Domain Local → Permissions','Admin → Gruppe → DNS → Profil','Alle Gruppen Dürfen Lokal Prüfen','Account → GPO → DHCP → Policy'],0,'Microsoft-Empfehlung zur Berechtigungsvergabe.','Kursskript'],
+['Welcher Gruppenbereich erhält bei AGDLP die Berechtigung?',['Domänenlokal','Global','Universal','Verteiler'],0,'DL-Gruppe bekommt die NTFS-Rechte.','Kursskript'],
+['Welche Gruppe eignet sich nicht für Berechtigungen?',['Verteilergruppe','Sicherheitsgruppe global','Sicherheitsgruppe domänenlokal','Universelle Sicherheitsgruppe'],0,'Verteilergruppen haben keine SID im Token.','Kursskript'],
+['Wo werden universelle Gruppenmitgliedschaften gespeichert?',['Im globalen Katalog','Nur in der SAM','In DNS','Im DHCP'],0,'Universal → GC.','Ergänzung'],
+['Wie legt man viele gleich konfigurierte Benutzer effizient an?',['Vorlagenbenutzer kopieren oder PowerShell/CSV','Jeden manuell ohne Vorlage','Über DHCP','Über die Ereignisanzeige'],0,'Kopieren übernimmt Gruppen und Profilangaben.','Kursskript'],
+['Wo legt man die domänenweite Kennwortrichtlinie fest?',['Default Domain Policy','Default Domain Controllers Policy','Lokale Gruppe','DNS-Zone'],0,'Kontorichtlinien wirken auf Domänenebene.','Ergänzung'],
+['Welches Cmdlet legt einen AD-Benutzer an?',['New-ADUser','Add-LocalUser','Set-ADUser','New-User'],0,'ActiveDirectory-Modul.','Ergänzung']],
+ord:[['Berechtigung nach AGDLP vergeben',['Benutzerkonten anlegen','Benutzer in globale Gruppe aufnehmen','Globale Gruppe in domänenlokale Gruppe aufnehmen','Domänenlokaler Gruppe NTFS-/Freigaberechte geben','Mit effektiven Berechtigungen prüfen']]]},
+{id:'w6',t:'Freigaben, NTFS & Profile',d:'Freigabe- und NTFS-Rechte, versteckte Freigaben, servergespeicherte Profile, Basisordner und Ordnerumleitung.',cards:[
+['Ordnerstruktur','Auf dem Server Verzeichnisse anlegen, z. B. <code>D:\\User</code> und <code>D:\\Profile</code>, und freigeben. Mit <code>$</code> am Ende ist die Freigabe <b>versteckt</b> (<code>Profile$</code>).'],
+['Freigabe- vs. NTFS-Rechte','<b>Freigaberechte</b> gelten nur beim Netzwerkzugriff (Lesen, Ändern, Vollzugriff). <b>NTFS</b> gilt immer, auch lokal. Über das Netz wirkt die <b>restriktivere</b> der beiden.'],
+['NTFS-Regeln','NTFS-Rechte sind <b>kumulativ</b> (Gruppen addieren sich). <b>Verweigern</b> schlägt Zulassen. Explizit schlägt vererbt. Kopieren erbt vom Ziel, Verschieben auf demselben Volume behält die Rechte.'],
+['Best Practice','Freigabe: Jeder/Authentifizierte Benutzer = Vollzugriff oder Ändern; feingranular über NTFS steuern.'],
+['Servergespeicherte Profile','Profil liegt auf dem Server, wird bei Anmeldung geladen und bei Abmeldung zurückgeschrieben. ADUC → Benutzer → Registerkarte <b>Profil</b> → Profilpfad <code>\\\\SRV\\Profile$\\%username%</code>.'],
+['Profil per GPO','Computerkonfiguration → Administrative Vorlagen → System → Benutzerprofile → <i>Pfad des servergespeicherten Profils für alle Benutzer festlegen, die sich an diesem Computer anmelden</i>.'],
+['Profile: Nachteile','Große Profile verlängern An-/Abmeldung. Daher Dokumente, Bilder, Videos per <b>Ordnerumleitung</b> auslagern. Windows hängt Versionssuffixe an (z. B. <code>.V6</code>).'],
+['Basisordner','Registerkarte Profil → Basisordner → <b>Verbinden</b> mit Laufwerk (z. B. H:) und <code>\\\\SRV\\User$\\%username%</code>. Der Ordner wird automatisch mit Rechten für den Benutzer angelegt.'],
+['Administratorzugriff','Standardmäßig hat nur der Benutzer Zugriff auf sein Profil. Richtlinie <i>Sicherheitsgruppe „Administratoren“ zu servergespeicherten Benutzerprofilen hinzufügen</i> aktivieren, bevor Profile entstehen.']],
+q:[
+['Benutzer hat Freigabe „Lesen“ und NTFS „Ändern“. Effektiv über das Netz?',['Lesen','Ändern','Vollzugriff','Kein Zugriff'],0,'Restriktivere Berechtigung gewinnt.','Kursskript'],
+['Wie werden NTFS-Rechte mehrerer Gruppen kombiniert?',['Kumulativ, außer Verweigern','Nur die erste Gruppe zählt','Die restriktivste','Zufällig'],0,'NTFS-Berechtigungen sind kumulativ.','Kursskript'],
+['Was bewirkt ein $ am Ende des Freigabenamens?',['Freigabe ist in der Netzwerkumgebung versteckt','Nur Admins dürfen zugreifen','Freigabe ist verschlüsselt','Schattenkopien aktiv'],0,'Versteckt, aber nicht gesichert.','Kursskript'],
+['Wo trägt man den Profilpfad für einen einzelnen Benutzer ein?',['ADUC → Benutzer → Registerkarte Profil','DNS-Manager','DHCP-Optionen','Druckerverwaltung'],0,'Profilpfad und Basisordner.','Kursskript'],
+['Wann wird ein servergespeichertes Profil zurückgeschrieben?',['Bei der Abmeldung','Jede Minute','Nie','Beim Ping'],0,'Laden bei Anmeldung, Schreiben bei Abmeldung.','Kursskript'],
+['Wie verkürzt man An-/Abmeldezeiten bei großen Profilen?',['Ordnerumleitung für Dokumente/Bilder','Profil verdoppeln','DHCP-Lease verlängern','Mehr Drucker'],0,'Daten bleiben auf dem Server, nicht im Profil.','Kursskript'],
+['Welche Variable verwendet man im Profilpfad?',['%username%','%computername%','%date%','%path%'],0,'Erzeugt je Benutzer einen eigenen Ordner.','Kursskript'],
+['Datei wird auf demselben NTFS-Volume verschoben. Rechte?',['Bleiben erhalten','Werden vom Ziel geerbt','Werden gelöscht','Werden Vollzugriff'],0,'Verschieben im selben Volume behält ACL.','Ergänzung']],
+ord:[['Servergespeichertes Profil einrichten',['Ordner D:\\Profile anlegen','Als Profile$ freigeben','Berechtigungen setzen','Profilpfad \\\\SRV\\Profile$\\%username% eintragen','Benutzer am Client an- und abmelden','Profilordner auf dem Server prüfen']]]},
+{id:'w7',t:'Gruppenrichtlinien',d:'GPMC, LSDOU, Richtlinien vs. Einstellungen, Laufwerkszuordnung, Filterung und Diagnose.',cards:[
+['GPMC','<b>Gruppenrichtlinienverwaltung</b> (gpmc.msc): GPO unter <i>Gruppenrichtlinienobjekte</i> → Neu erstellen, nach Funktion benennen (z. B. <code>U_Laufwerk_S</code>), bearbeiten und an Domäne/OU <b>verknüpfen</b>.'],
+['Verarbeitungsreihenfolge LSDOU','<b>L</b>okal → <b>S</b>tandort → <b>D</b>omäne → <b>OU</b> (übergeordnet → untergeordnet). Das zuletzt angewendete GPO gewinnt bei Konflikten.'],
+['Computer- vs. Benutzerkonfiguration','Computerteil wirkt beim Start auf Computerobjekte in der OU, Benutzerteil bei der Anmeldung auf Benutzerobjekte in der OU.'],
+['Richtlinien vs. Einstellungen','<b>Richtlinien</b> werden erzwungen, Benutzer kann nicht ändern. <b>Einstellungen (Preferences)</b>: Vorgaben wie Laufwerke, Drucker, Verknüpfungen; Benutzer kann ändern; Zielgruppenadressierung möglich.'],
+['Laufwerkszuordnung','Benutzerkonfiguration → Einstellungen → Windows-Einstellungen → <b>Laufwerkszuordnungen</b> → Neu → Zugeordnetes Laufwerk: Aktion Aktualisieren, Pfad <code>\\\\SRV\\DATA</code>, Buchstabe S:.'],
+['Vererbung','<b>Vererbung deaktivieren</b> an einer OU blockiert übergeordnete GPOs. <b>Erzwungen</b> an einer Verknüpfung setzt sich trotzdem durch und gewinnt.'],
+['Sicherheitsfilterung','Standard: Authentifizierte Benutzer. Für Gruppen: Gruppe muss <b>Lesen</b> und <b>Gruppenrichtlinie übernehmen</b> (Zulassen) haben. Zusätzlich WMI-Filter möglich.'],
+['Standard-GPOs','<b>Default Domain Policy</b>: Kennwort-/Kontosperrungsrichtlinien. <b>Default Domain Controllers Policy</b>: Rechte auf DCs.'],
+['Loopback','Benutzerkonfiguration abhängig vom Computer (z. B. Schulungsraum, Terminalserver): Modus <b>Ersetzen</b> oder <b>Zusammenführen</b>.'],
+['Diagnose','<code>gpupdate /force</code> · <code>gpresult /r</code> · <code>gpresult /h bericht.html</code> · Gruppenrichtlinienergebnisse/-modellierung in der GPMC.']],
+q:[
+['In welcher Reihenfolge werden GPOs verarbeitet?',['Lokal, Standort, Domäne, OU','OU, Domäne, Standort, Lokal','Domäne, Lokal, OU, Standort','Standort, OU, Lokal, Domäne'],0,'LSDOU, das letzte gewinnt.','Kursskript'],
+['Wo ordnet man ein Netzlaufwerk per GPO zu?',['Benutzerkonfiguration → Einstellungen → Windows-Einstellungen → Laufwerkszuordnungen','Computerkonfiguration → Software','DNS → Zone','ADUC → Attribut-Editor'],0,'Gruppenrichtlinien-Einstellungen.','Kursskript'],
+['Ein GPO soll nur für eine Gruppe gelten. Welche Rechte braucht die Gruppe?',['Lesen und Gruppenrichtlinie übernehmen','Vollzugriff','Nur Schreiben','Keine'],0,'Sicherheitsfilterung.','Kursskript'],
+['Was setzt sich gegen „Vererbung deaktivieren“ durch?',['Erzwungene Verknüpfung','Lokale Richtlinie','WMI-Filter','Nichts'],0,'Erzwungen bricht Blockierung.','Ergänzung'],
+['Welcher Befehl zeigt angewendete GPOs?',['gpresult /r','gpupdate /r','dcdiag /gpo','netstat -g'],0,'Resultant Set of Policy.','Kursskript'],
+['Unterschied Richtlinie vs. Einstellung?',['Richtlinien erzwungen, Einstellungen änderbare Vorgaben','Kein Unterschied','Einstellungen nur für Computer','Richtlinien nur lokal'],0,'Preferences sind nicht „tätowierend“ gesperrt.','Ergänzung'],
+['Wo gehört die Mindestkennwortlänge der Domäne hin?',['Default Domain Policy','Default Domain Controllers Policy','OU-GPO Vertrieb','Lokale Richtlinie des Clients'],0,'Kontorichtlinien auf Domänenebene.','Ergänzung'],
+['Ein Computer-GPO ist mit der OU „Benutzer“ verknüpft (dort nur Benutzer). Wirkung?',['Keine, Computerteil braucht Computerobjekte','Wirkt auf alle PCs','Wirkt auf DCs','Löscht Benutzer'],0,'GPO-Teile wirken nur auf passende Objekte (außer Loopback).','Ergänzung'],
+['Wofür dient der Loopback-Modus?',['Benutzereinstellungen abhängig vom Computer','DNS-Schleifen','Netzwerk testen','Profile löschen'],0,'Ersetzen/Zusammenführen.','Ergänzung']],
+ord:[['Laufwerk S: per GPO verteilen',['GPMC öffnen','Neues GPO erstellen und benennen','GPO bearbeiten: Laufwerkszuordnung S: → \\\\SRV\\DATA','GPO mit Benutzer-OU verknüpfen','Am Client gpupdate /force ausführen','Mit gpresult /r prüfen']]]},
+{id:'w8',t:'Dateidienste: Kontingente, DFS, Schattenkopien',d:'Ressourcen-Manager für Dateiserver, verteiltes Dateisystem, DFS-Replikation und Schattenkopien.',cards:[
+['FSRM','<b>Ressourcen-Manager für Dateiserver</b>: Kontingentverwaltung, Dateiprüfungen (z. B. MP3/EXE sperren), Speicherberichte.'],
+['Kontingente','<b>Hart</b>: Speichern über Grenze verhindert. <b>Weich</b>: nur Warnung/Überwachung. Schwellen lösen E-Mail, Ereignis oder Bericht aus. Eine Vorlage wird über <b>Kontingent erstellen</b> in Betrieb genommen; automatisches Kontingent gilt für neue Unterordner.'],
+['DFS-Prinzip','DFS (Verteiltes Dateisystem) <b>trennt Pfadnamen und Speicherort</b>: Benutzer greifen auf <code>\\\\schulung.int\\Daten</code> zu, ohne den Server zu kennen.'],
+['Namespace','<b>Domänenbasierter Namespace</b>: im AD gespeichert, hochverfügbar mit mehreren Namespaceservern. <b>Eigenständig</b>: an einen Server gebunden. Ordner verweisen auf <b>Ordnerziele</b> (Freigaben).'],
+['DFS-Replikation','Hält Ordnerziele auf mehreren Servern synchron (Remote Differential Compression). Serverwechsel: nur das Mapping der Ordnerziele anpassen, Benutzerpfade bleiben.'],
+['Schattenkopien','Pro <b>Volume</b> aktiviert, gilt dann für alle Freigaben darauf. Schreibgeschützt. Standard-Zeitplan 7:00 und 12:00 werktags. Benutzer stellen über <b>Vorgängerversionen</b> wieder her.'],
+['Einsatzszenarien','1. Versehentlich gelöschte Dateien wiederherstellen · 2. Überschriebene Dateien wiederherstellen · 3. Versionen vergleichen.'],
+['Kein Backup!','Schattenkopien liegen auf demselben System und ersetzen <b>keine regelmäßige Sicherung</b> (Plattendefekt, Ransomware, Brand).']],
+q:[
+['Was verhindert ein hartes Kontingent?',['Speichern über die Grenze','Nur Warnung','Löschen von Dateien','Lesen'],0,'Weich = nur Überwachung.','Kursskript'],
+['Wie wird eine Kontingentvorlage wirksam?',['Über „Kontingent erstellen“ auf einen Pfad anwenden','Automatisch auf alle Laufwerke','Über DHCP','Durch Neustart'],0,'Vorlage → Kontingent.','Kursskript'],
+['Welches Grundprinzip hat DFS?',['Trennung von Pfadnamen und Speicherort','Verschlüsselung','IP-Vergabe','Druckerverteilung'],0,'Logischer Namespace.','Kursskript'],
+['Vorteil eines domänenbasierten Namespace?',['Im AD gespeichert, mehrere Namespaceserver möglich','Benötigt kein AD','Nur lokal nutzbar','Schneller als RAM'],0,'Hochverfügbar.','Kursskript'],
+['Wofür aktiviert man Schattenkopien?',['Pro Volume','Pro Datei','Pro Benutzer','Pro Drucker'],0,'Nicht für einzelne Ordner.','Kursskript'],
+['Sind Schattenkopien ein Backup-Ersatz?',['Nein, sie liegen auf demselben System','Ja, vollständig','Nur bei RAID','Nur in der Cloud'],0,'Ausdrücklich im Skript betont.','Kursskript'],
+['Wie stellt ein Benutzer eine Schattenkopie wieder her?',['Eigenschaften → Vorgängerversionen','gpupdate','DHCP-Konsole','Druckerverwaltung'],0,'Previous Versions.','Kursskript'],
+['Womit sperrt man MP3-Dateien auf einer Freigabe?',['FSRM-Dateiprüfung','DNS-Filter','DHCP-Ausschluss','BitLocker'],0,'Dateiprüfungsverwaltung.','Ergänzung']],
+ord:[['DFS-Namespace einrichten',['Rollendienste DFS-Namespaces und DFS-Replikation installieren','DFS-Verwaltung öffnen → Neuer Namespace','Namespaceserver wählen','Namen vergeben, domänenbasierten Namespace wählen','Ordner mit Ordnerzielen (Freigaben) hinzufügen','Replikationsgruppe für mehrere Ziele anlegen']]]},
+{id:'w9',t:'Druckdienste',d:'Druckerverwaltung, Treiber, Druckerpool, Prioritäten und Verteilung per Gruppenrichtlinie.',cards:[
+['Druckerverwaltung','Server-Manager → Tools → <b>Druckerverwaltung</b>: Drucker suchen und anlegen, Treiber und Anschlüsse verwalten, Drucker freigeben und im Verzeichnis auflisten.'],
+['Logischer vs. physischer Drucker','<b>Logischer Drucker</b> = Software-Schnittstelle (Warteschlange, Treiber). <b>Druckgerät</b> = physische Hardware.'],
+['Treiber','Der Client lädt Treiber und Einstellungen vom Druckserver. Für 32-Bit-Clients muss ein passender <b>32-Bit-Treiber</b> auf dem Server installiert sein. Signierte, paketfähige Treiber bevorzugen.'],
+['Druckerpool','Ein logischer Drucker mit mehreren <b>baugleichen</b> Druckgeräten: Eigenschaften → Anschlüsse → <b>Druckerpool aktivieren</b> → alle Ports wählen. Aufträge gehen an das freie Gerät. Geräte nebeneinander aufstellen!'],
+['Prioritäten','Zwei logische Drucker auf dasselbe Gerät mit Priorität 1–99 (99 höchste), z. B. Chefdrucker vs. Standard.'],
+['Verteilung per Druckerverwaltung','Drucker → Rechtsklick → <b>Mit Gruppenrichtlinie bereitstellen</b> → GPO wählen → pro Benutzer und/oder pro Computer → Hinzufügen.'],
+['Verteilung per Einstellungen','Benutzerkonfiguration → Einstellungen → Systemsteuerungseinstellungen → <b>Drucker</b> → Neu → Freigegebener Drucker, ggf. als Standarddrucker und mit Zielgruppenadressierung (z. B. Raum).']],
+q:[
+['Was ist ein Druckerpool?',['Ein logischer Drucker mit mehreren baugleichen Geräten','Mehrere Treiber für ein Gerät','Ein Drucker für mehrere Domänen','Eine Druckwarteschlange je Benutzer'],0,'Lastverteilung.','Kursskript'],
+['Wo aktiviert man den Druckerpool?',['Druckereigenschaften → Anschlüsse','DHCP-Optionen','GPMC → WMI','Treiberdatei'],0,'Kontrollkästchen „Druckerpool aktivieren“.','Kursskript'],
+['32-Bit-Client kann keinen Treiber laden. Ursache?',['Kein 32-Bit-Treiber auf dem Druckserver','Falsche IP des Clients','Kein Kontingent','DNS-Weiterleitung'],0,'Passende Architektur nötig.','Kursskript'],
+['Welche Druckpriorität ist am höchsten?',['99','1','0','10'],0,'1 niedrig, 99 hoch.','Ergänzung'],
+['Wie verteilt man Drucker zentral an Clients?',['Gruppenrichtlinie','Manuell an jedem PC','Per DHCP-Option 003','Über Schattenkopien'],0,'GPO aus Druckerverwaltung oder Preferences.','Kursskript'],
+['Warum baugleiche Geräte im Pool nebeneinander?',['Benutzer wissen nicht, welches Gerät druckt','Wegen Strom','Wegen WLAN','Lizenz'],0,'Ausdruck kann an jedem Gerät landen.','Kursskript']],
+ord:[['Drucker per GPO bereitstellen',['Drucker auf dem Server installieren und freigeben','Druckerverwaltung öffnen','Mit Gruppenrichtlinie bereitstellen','GPO auswählen','Pro Benutzer/Computer festlegen und hinzufügen','Client neu starten bzw. gpupdate']]]},
+{id:'w10',t:'Sicherheit & Betrieb',d:'BitLocker, WSUS, Zeitsynchronisation, Remoteverwaltung, Ereignisanzeige und Sicherung.',cards:[
+['BitLocker','Verschlüsselt ganze Laufwerke. Schutz, wenn die Festplatte ausgebaut und in einen anderen Rechner eingebaut wird. Mit <b>TPM</b> wird der Schlüssel im Chip gebunden.'],
+['BitLocker ohne TPM','GPO: Computerkonfiguration → Administrative Vorlagen → Windows-Komponenten → BitLocker-Laufwerkverschlüsselung → Betriebssystemlaufwerke → <i>Zusätzliche Authentifizierung beim Start anfordern</i> → <b>BitLocker ohne kompatibles TPM zulassen</b>. Dann USB-Stick oder Kennwort.'],
+['Wiederherstellungsschlüssel','48-stelliger Schlüssel. Im AD speichern (GPO), ausdrucken oder sicher ablegen. Vor Aktivierung: <b>Systemprüfung</b> durchführen.'],
+['WSUS','Windows Server Update Services: Updates zentral genehmigen und verteilen. Clients per GPO: <i>Internen Pfad für den Microsoft Updatedienst angeben</i>. Computergruppen: Test → Produktion.'],
+['Zeitsynchronisation','Kerberos toleriert standardmäßig max. <b>5 Minuten</b> Zeitabweichung. PDC-Emulator holt Zeit extern: <code>w32tm /config /manualpeerlist:"ptbtime1.ptb.de" /syncfromflags:manual /reliable:yes /update</code>; Prüfen: <code>w32tm /query /status</code>.'],
+['Remoteverwaltung','Remotedesktop (TCP 3389, NLA), Server-Manager remote, <code>Enter-PSSession</code> (WinRM 5985/5986), Windows Admin Center.'],
+['Ereignisanzeige','Protokolle System, Anwendung, Sicherheit, Verzeichnisdienst, DNS-Server. Erster Anlaufpunkt bei Fehlern.'],
+['Windows Server-Sicherung','Feature: vollständige Sicherung, Systemstatus (inkl. AD), Bare-Metal-Recovery. 3-2-1-Regel: 3 Kopien, 2 Medien, 1 extern/offline.']],
+q:[
+['Wovor schützt BitLocker vor allem?',['Auslesen ausgebauter Datenträger','Phishing','DDoS','Falsche DNS-Einträge'],0,'Data-at-Rest-Verschlüsselung.','Kursskript'],
+['Welche Richtlinie erlaubt BitLocker ohne TPM?',['Zusätzliche Authentifizierung beim Start anfordern → ohne kompatibles TPM zulassen','Kennwort muss Komplexität erfüllen','Laufwerkszuordnung','WSUS-Pfad'],0,'Unter BitLocker-Laufwerkverschlüsselung → Betriebssystemlaufwerke.','Kursskript'],
+['Wo sollte der Wiederherstellungsschlüssel gespeichert werden?',['Im AD bzw. sicher außerhalb des Geräts','Auf dem verschlüsselten Laufwerk','Im Klartext auf dem Desktop','Nirgends'],0,'Sonst Datenverlust bei Problemen.','Ergänzung'],
+['Wie groß darf die Zeitabweichung für Kerberos standardmäßig sein?',['5 Minuten','30 Sekunden','1 Stunde','24 Stunden'],0,'Maximum tolerance for clock synchronization.','Ergänzung'],
+['Welcher Befehl zeigt den Zeitstatus?',['w32tm /query /status','time /status','net time /check','ntp -s'],0,'Windows Time Service.','Kursskript'],
+['Wozu dient WSUS?',['Updates zentral genehmigen und verteilen','Drucker verteilen','IPs vergeben','Profile speichern'],0,'Update-Management.','Kursskript'],
+['Welcher Port nutzt RDP?',['3389','22','443','53'],0,'TCP/UDP 3389.','Ergänzung'],
+['Was besagt die 3-2-1-Regel?',['3 Kopien, 2 Medien, 1 extern','3 Server, 2 DCs, 1 DNS','3 Tage, 2 Wochen, 1 Monat','3 RAID, 2 Platten, 1 Controller'],0,'Backup-Grundregel.','Ergänzung']],
+ord:[['BitLocker ohne TPM aktivieren',['gpedit.msc / GPO öffnen','BitLocker ohne kompatibles TPM zulassen aktivieren','gpupdate /force','BitLocker in der Systemsteuerung starten','Entsperrmethode (Kennwort/USB) wählen','Wiederherstellungsschlüssel sichern','Systemprüfung durchführen und verschlüsseln']]]},
+{id:'m8',t:'IHK-Prüfung: Aufbau, Projektarbeit & Fachgespräch',d:'Prüfungsbereiche FISI, Projektantrag, Dokumentation, Präsentation und Fachgespräch (ohne WiSo).',cards:[
+['Gestreckte Abschlussprüfung','<b>AP Teil 1</b> „Einrichten eines IT-gestützten Arbeitsplatzes“: 90 Min., 20 %. <b>AP Teil 2</b>: Projekt (50 %), „Konzeption und Administration von IT-Systemen“ (90 Min., 10 %), „Analyse und Entwicklung von Netzwerken“ (90 Min., 10 %), WiSo (60 Min., 10 %).'],
+['Projekt: zwei gleich gewichtete Teile','Teil 1: betriebliche Projektarbeit + Dokumentation, höchstens <b>40 Stunden</b>. Teil 2: Präsentation (max. <b>15 Min.</b>) + Fachgespräch, zusammen höchstens <b>30 Min.</b> Beide Teile zählen je <b>50 %</b> (FIAusbV § 20).'],
+['Was die Projektarbeit nachweisen soll','Anforderungen analysieren · Lösungsalternativen vorschlagen · Systemänderungen durchführen und übergeben · IT-Systeme einführen und pflegen · <b>Schwachstellen analysieren und Schutzmaßnahmen umsetzen</b> · anforderungsgerecht dokumentieren.'],
+['Projektantrag','Vor Beginn dem Prüfungsausschuss vorlegen: <b>Ausgangssituation, Projektziel, Zeitplanung</b>. Bei der IHK Schwarzwald-Baar-Heuberg digital über das Online-Portal. Erst <b>nach Genehmigung</b> anfangen!'],
+['Projekt muss real sein','Ein realer Auftrag oder abgegrenzter Teilauftrag aus dem Berufsbild – fiktive Projekte sind ungeeignet. Keine Betriebsgeheimnisse, Datenschutz beachten.'],
+['Dokumentation','Bewertet wird die <b>handlungsorientierte Darstellung des Projektablaufs</b>, nicht ob das Ergebnis am Prüfungstag läuft. Umfang bei der IHK SBH ca. <b>10–15 Seiten</b> + Anlagen, als <b>eine PDF</b>. Fremde Bilder/Texte kennzeichnen.'],
+['Roter Faden der Doku','Ausgangssituation & Ist-Analyse → Soll-Konzept → Lösungsalternativen & begründete Entscheidung → Zeit-/Ressourcenplanung → Umsetzung → Tests/Qualitätssicherung → Übergabe & Admin-/Benutzerdoku → Soll-Ist-Vergleich & Fazit.'],
+['Deckblatt & Erklärung','Das Deckblatt nennt u. a. Prüflingsnummer, Name, Ausbildungsbetrieb und die <b>Zielgruppe der Präsentation</b>. Mit der persönlichen Erklärung versicherst du die selbstständige Erarbeitung; der Ausbilder bestätigt das.'],
+['Zielgruppe der Präsentation','Eine <b>reale Zielgruppe</b>, z. B. IT-Abteilung, Anwender oder Geschäftsleitung – „Prüfungsausschuss“ ist ungeeignet. Zeige Ergebnisse und <b>Nutzen für diese Zielgruppe</b>; keine Kopie der Doku.'],
+['Fachgespräch','Bezieht sich auf das Projekt und sein fachliches Umfeld: „Warum diese Lösung?“, „Was passiert bei Ausfall X?“, „Wie haben Sie getestet?“, „Was würden Sie heute anders machen?“ – plus Grundlagen wie DNS, Kerberos, RAID.'],
+['KI & Quellen','Viele IHKs verlangen, KI-Nutzung offenzulegen; ungekennzeichnete Nutzung kann als Täuschung gewertet werden. Merkblatt der eigenen Kammer prüfen, Quellen und Hilfsmittel kennzeichnen.'],
+['Schriftliche AP2-Aufgaben','Offene Aufgaben zu einer betrieblichen Handlungssituation: planen, berechnen (Subnetting!), begründen. Operatoren beachten – „nennen“ ≠ „erläutern“ ≠ „begründen“.']],
+q:[
+['Wie viele Stunden haben FISI höchstens für Projektarbeit inkl. Dokumentation?',['40 Stunden','80 Stunden','35 Stunden','70 Stunden'],0,'40 Stunden; 80 Stunden gelten für Anwendungsentwicklung.','FIAusbV § 20'],
+['Wie lange darf die Präsentation höchstens dauern?',['15 Minuten','30 Minuten','10 Minuten','45 Minuten'],0,'Max. 15 Minuten, mit Fachgespräch zusammen max. 30 Minuten.','FIAusbV § 20'],
+['Wann darfst du mit der Projektarbeit beginnen?',['Nach Genehmigung des Projektantrags durch den Prüfungsausschuss','Sobald der Ausbilder zustimmt','Direkt nach der Prüfungsanmeldung','Nach Abgabe der Dokumentation'],0,'Ohne Genehmigung droht, dass das Projekt nicht anerkannt wird.','IHK SBH'],
+['Welche Zielgruppe ist für die Präsentation NICHT geeignet?',['Der Prüfungsausschuss','Die IT-Abteilung','Die Geschäftsleitung','Die Anwender im Fachbereich'],0,'Die Zielgruppe muss real sein.','IHK SBH'],
+['Was wird bei der Dokumentation in erster Linie bewertet?',['Die handlungsorientierte Darstellung des Projektablaufs','Ob das System am Prüfungstag läuft','Die Seitenzahl','Die Menge an Screenshots'],0,'Der Weg und die Begründungen zählen.','IHK SBH'],
+['Wie sind die beiden Teile des Projektbereichs gewichtet?',['Je 50 %','70 % / 30 %','30 % / 70 %','Nur die Doku zählt'],0,'Projektarbeit+Doku und Präsentation+Fachgespräch je 50 %.','FIAusbV § 20'],
+['Was gehört in die Projektbeschreibung (Antrag)?',['Ausgangssituation, Projektziel und Zeitplanung','Nur der Titel','Das fertige Testprotokoll','Die Präsentationsfolien'],0,'So steht es in der Verordnung.','FIAusbV § 20'],
+['Was passiert bei verspäteter Abgabe der Doku ohne wichtigen Grund?',['Die Prüfung gilt als nicht bestanden','Nur 10 % Abzug','Die Frist verlängert sich automatisch','Nichts'],0,'Fristen unbedingt einhalten.','IHK SBH'],
+['Welcher Nachweis gehört ausdrücklich zur FISI-Projektarbeit?',['Schwachstellen analysieren und Schutzmaßnahmen umsetzen','Eine Programmiersprache entwickeln','Einen Businessplan erstellen','Hardware löten'],0,'IT-Sicherheit ist fester Bestandteil.','FIAusbV § 20'],
+['Gute Antwort auf „Warum diese Lösung?“ im Fachgespräch:',['Verweis auf Anforderungen und den begründeten Vergleich der Alternativen','„War schon so eingerichtet.“','„Hat mein Ausbilder gesagt.“','„War im Internet am beliebtesten.“'],0,'Begründen statt behaupten.','Prüfungspraxis'],
+['Wie lange dauern KAIS und Netzwerke schriftlich?',['Jeweils 90 Minuten','Jeweils 60 Minuten','Zusammen 90 Minuten','Jeweils 120 Minuten'],0,'Je 90 Minuten, je 10 %.','FIAusbV §§ 21–22']]},
+{id:'m9',t:'Server, Storage, Virtualisierung & Backup',d:'AP2-Bereich „Konzeption und Administration von IT-Systemen“: RAID, Speicher, Backup, Virtualisierung, Verfügbarkeit, Automatisierung.',cards:[
+['Prüfungsbereich KAIS','IT-Systeme planen und konfigurieren, administrieren und betreiben, <b>Speicherlösungen</b> integrieren und <b>Programme zur automatisierten Systemverwaltung</b> erstellen (FIAusbV § 21).'],
+['RAID 0 / 1','<b>RAID 0</b> (Striping): volle Kapazität, schnell, <b>keine</b> Redundanz. <b>RAID 1</b> (Mirroring): Spiegelung, 50 % Nutzkapazität, eine Platte darf ausfallen.'],
+['RAID 5 / 6 / 10','<b>RAID 5</b>: min. 3 Platten, Nutzkapazität n−1, 1 Ausfall. <b>RAID 6</b>: min. 4, n−2, 2 Ausfälle. <b>RAID 10</b>: min. 4, gespiegelt + gestriped, 50 %. <b>RAID ersetzt kein Backup!</b>'],
+['DAS, NAS, SAN','<b>DAS</b>: direkt angeschlossen. <b>NAS</b>: dateibasiert über SMB/NFS im LAN. <b>SAN</b>: blockbasiert in eigenem Speichernetz (iSCSI, Fibre Channel).'],
+['Backup-Arten','<b>Voll</b>: alles. <b>Inkrementell</b>: Änderungen seit der <b>letzten Sicherung jeder Art</b> – Wiederherstellung = Voll + alle Inkremente. <b>Differenziell</b>: seit der <b>letzten Vollsicherung</b> – Wiederherstellung = Voll + letzte Differenz.'],
+['3-2-1, RPO & RTO','<b>3</b> Kopien, <b>2</b> Medientypen, <b>1</b> außer Haus bzw. offline. <b>RPO</b> = maximal tolerierter Datenverlust, <b>RTO</b> = maximal tolerierte Wiederherstellungsdauer.'],
+['Generationenprinzip','Großvater-Vater-Sohn: tägliche, wöchentliche und monatliche Sicherungen rotieren. Wiederherstellung regelmäßig <b>testen</b>.'],
+['Virtualisierung','<b>Typ 1</b> (bare metal: Hyper-V, ESXi, Proxmox) vs. <b>Typ 2</b> (auf Host-OS: VirtualBox, VMware Workstation). Vorteile: Konsolidierung, Snapshots, schnelle Bereitstellung. <b>Snapshot ≠ Backup</b>.'],
+['Container','Container (z. B. Docker) teilen sich den Kernel des Hosts, starten schnell und sind leichtgewichtig; VMs haben ein eigenes Gast-Betriebssystem.'],
+['Hochverfügbarkeit','<b>Single Points of Failure</b> vermeiden: zwei DCs, Failover-Cluster, redundante Netzteile, RAID, USV. 99,9 % Verfügbarkeit ≈ 8,76 h Ausfall pro Jahr.'],
+['USV-Klassen','<b>VFD</b>/Offline: schaltet erst bei Ausfall um. <b>VI</b>/Line-Interactive: regelt zusätzlich Spannungsschwankungen. <b>VFI</b>/Online-Doppelwandler: Last dauerhaft über Wechselrichter – höchster Schutz.'],
+['Automatisierung mit PowerShell','Typische Aufgabe: viele Benutzer aus CSV anlegen. <code>Import-Csv users.csv | ForEach-Object { New-ADUser -Name $_.Name -SamAccountName $_.Login -Path "OU=IT,DC=schulung,DC=int" }</code>. Vorher mit <code>-WhatIf</code> testen.'],
+['Monitoring','CPU, RAM, Speicherplatz, Dienste und Ereignisprotokolle überwachen (Leistungsüberwachung, Ereignisanzeige, Tools wie PRTG, Zabbix, Checkmk). Schwellwerte und Alarme festlegen; Updates geplant verteilen (WSUS).']],
+q:[
+['Nutzkapazität eines RAID 5 aus 4 Platten à 2 TB?',['6 TB','8 TB','4 TB','2 TB'],0,'(n−1) × 2 TB = 6 TB.','Fachwissen AP2'],
+['Wie viele Plattenausfälle verkraftet RAID 6?',['Zwei','Eine','Keine','Immer die Hälfte'],0,'Zwei Paritätsinformationen erlauben zwei Ausfälle.','Fachwissen AP2'],
+['Welches RAID bietet KEINE Redundanz?',['RAID 0','RAID 1','RAID 5','RAID 10'],0,'Striping ohne Parität oder Spiegel.','Fachwissen AP2'],
+['Warum ersetzt RAID kein Backup?',['Es schützt nicht vor Löschen, Ransomware oder Brand','Es ist zu langsam','Es geht nur mit SSDs','Es speichert keine Dateien'],0,'Fehler werden sofort auf alle Platten übertragen.','Fachwissen AP2'],
+['Mo Vollsicherung, Di–Do inkrementell, Fr früh Ausfall. Was brauchst du?',['Voll (Mo) + Inkremente Di, Mi, Do','Nur Inkrement Do','Voll + nur Inkrement Do','Nur die Vollsicherung'],0,'Jedes Inkrement baut auf dem vorherigen auf.','Fachwissen AP2'],
+['Gleiche Lage, aber differenziell. Was brauchst du?',['Voll + Differenzsicherung vom Do','Alle Differenzen Di–Do','Nur Differenz Do','Voll + Di'],0,'Die letzte Differenz enthält alle Änderungen seit der Vollsicherung.','Fachwissen AP2'],
+['Was beschreibt der RPO?',['Den maximal tolerierbaren Datenverlust','Die maximale Wiederherstellungsdauer','Die Anzahl der Medien','Die Backup-Größe'],0,'RTO ist die Wiederherstellungsdauer.','Fachwissen AP2'],
+['Was besagt die 3-2-1-Regel?',['3 Kopien, 2 Medientypen, 1 Kopie außer Haus','3 Server, 2 DCs, 1 Backup','3 Vollsicherungen in 2 Wochen','3 Tage aufbewahren'],0,'Ergänzend: eine Kopie offline/unveränderlich.','Fachwissen AP2'],
+['Welcher Speicher arbeitet blockbasiert über ein eigenes Netz?',['SAN','NAS','USB-Festplatte','Cloud-Freigabe'],0,'NAS ist dateibasiert.','Fachwissen AP2'],
+['Hyper-V auf Windows Server ist ein …',['Typ-1-Hypervisor','Typ-2-Hypervisor','Container-Runtime','Emulator'],0,'Hyper-V läuft direkt auf der Hardware.','Fachwissen AP2'],
+['Warum ist ein VM-Snapshot kein Backup?',['Er liegt meist auf demselben Speicher und hängt von der Basis-Disk ab','Er lässt sich nicht zurückspielen','Er sichert nur das Netzwerk','Er ist unlesbar'],0,'Fällt der Speicher aus, sind VM und Snapshot weg.','Fachwissen AP2'],
+['Welche USV bietet den höchsten Schutz?',['Online-Doppelwandler (VFI)','Offline (VFD)','Line-Interactive (VI)','Steckdosenleiste mit Überspannungsschutz'],0,'Die Last hängt dauerhaft am Wechselrichter.','Fachwissen AP2'],
+['Ausfallzeit pro Jahr bei 99,9 % Verfügbarkeit?',['ca. 8,76 Stunden','ca. 52 Minuten','ca. 3,65 Tage','ca. 5 Minuten'],0,'0,1 % von 8.760 h = 8,76 h.','Fachwissen AP2'],
+['Was bewirkt -WhatIf in PowerShell?',['Zeigt, was passieren würde, ohne es auszuführen','Führt den Befehl doppelt aus','Unterdrückt Fehler','Startet als Administrator'],0,'Ideal zum Testen von Massenänderungen.','Fachwissen AP2'],
+['Was unterscheidet Container von VMs?',['Container teilen sich den Kernel des Hosts','Container haben ein eigenes Gast-OS','Container laufen nur unter Windows','Container brauchen Typ-2-Hypervisoren'],0,'Deshalb sind sie leichtgewichtiger, aber weniger isoliert.','Fachwissen AP2']]},
+{id:'m10',t:'Netzwerke für die AP2',d:'AP2-Bereich „Analyse und Entwicklung von Netzwerken“: OSI, Subnetting, IPv6, VLAN, Ports, DHCP, Firewall, VPN, Diagnose.',cards:[
+['Prüfungsbereich Netzwerke','Netzwerkprotokolle und -komponenten auswählen und konfigurieren, <b>IT-Sicherheit im Netz</b> sicherstellen, Betrieb und Verfügbarkeit überwachen (FIAusbV § 22).'],
+['OSI-Modell','7 Anwendung · 6 Darstellung · 5 Sitzung · 4 Transport (TCP/UDP) · 3 Vermittlung (IP, Router) · 2 Sicherung (MAC, Switch, VLAN) · 1 Bitübertragung (Kabel).'],
+['Subnetting-Grundlagen','Hosts = 2<sup>(32−Präfix)</sup> − 2. <code>/24</code> = 254, <code>/25</code> = 126, <code>/26</code> = 62, <code>/27</code> = 30, <code>/28</code> = 14. Netzadresse: Hostbits 0; Broadcast: Hostbits 1.'],
+['Beispiel 192.168.153.0/26','Vier Subnetze: .0–.63, .64–.127, .128–.191, .192–.255. Erstes Netz: Hosts .1–.62, Broadcast .63, Maske <code>255.255.255.192</code>.'],
+['Private IPv4-Bereiche','<code>10.0.0.0/8</code>, <code>172.16.0.0/12</code>, <code>192.168.0.0/16</code>. <code>169.254.x.x</code> = APIPA: kein DHCP-Server erreichbar.'],
+['IPv6 kompakt','128 Bit hexadezimal. Führende Nullen weglassen, <code>::</code> nur <b>einmal</b>. <code>fe80::/10</code> Link-Local, <code>fd00::/8</code> ULA, <code>2000::/3</code> Global Unicast. Im LAN üblich: /64.'],
+['VLANs','Logische Trennung auf Schicht 2 nach <b>IEEE 802.1Q</b>. <b>Access-Port</b>: ein VLAN untagged. <b>Trunk</b>: mehrere VLANs getaggt. Zwischen VLANs routet ein Router oder L3-Switch.'],
+['Wichtige Ports','DNS 53 · DHCP 67/68 · HTTP 80 · HTTPS 443 · SSH 22 · RDP 3389 · SMB 445 · LDAP 389 / LDAPS 636 · Kerberos 88 · NTP 123 · SMTP 25/587 · SNMP 161.'],
+['TCP vs. UDP','<b>TCP</b>: verbindungsorientiert (SYN, SYN-ACK, ACK), zuverlässig. <b>UDP</b>: verbindungslos, ohne Bestätigung – z. B. DNS-Abfragen, DHCP, VoIP.'],
+['DHCP: DORA','<b>D</b>iscover → <b>O</b>ffer → <b>R</b>equest → <b>A</b>cknowledge. Über Routergrenzen: <b>DHCP-Relay-Agent</b> (IP-Helper).'],
+['Firewall & DMZ','Paketfilter, Stateful Inspection, Application-Level-Gateway/Proxy. Öffentlich erreichbare Server gehören in eine <b>DMZ</b>.'],
+['VPN','Verschlüsselter Tunnel: <b>Site-to-Site</b> (Standorte) und <b>Client-to-Site</b> (Remote-Zugriff), z. B. IPsec, OpenVPN, WireGuard. Überlappende IP-Netze verursachen Probleme.'],
+['Netzwerkdiagnose','<code>ipconfig /all</code>, <code>ping</code>, <code>tracert</code>, <code>nslookup</code>, <code>Test-NetConnection srv01 -Port 445</code>, <code>arp -a</code>, <code>netstat -ano</code>. OSI-Schichten von unten nach oben prüfen.']],
+q:[
+['Wie viele nutzbare Hosts hat ein /27?',['30','32','62','14'],0,'2^5 − 2 = 30.','Fachwissen AP2'],
+['Welche Maske gehört zu /26?',['255.255.255.192','255.255.255.128','255.255.255.224','255.255.255.240'],0,'26 Einsen: letztes Oktett 11000000 = 192.','Fachwissen AP2'],
+['Broadcast von 192.168.153.64/26?',['192.168.153.127','192.168.153.255','192.168.153.63','192.168.153.128'],0,'Blockgröße 64: .64–.127.','Fachwissen AP2'],
+['Ein Client hat 169.254.12.7. Ursache?',['Kein DHCP-Server erreicht (APIPA)','Öffentliche IP erhalten','Korrekt in der Domäne','DNS zu schnell'],0,'Erst Kabel, VLAN und DHCP-Bereich prüfen.','Fachwissen AP2'],
+['Welche Adresse ist privat?',['172.20.5.1','172.32.0.1','11.0.0.1','192.169.1.1'],0,'172.16.0.0/12 reicht bis 172.31.255.255.','RFC 1918'],
+['Auf welcher OSI-Schicht arbeiten Switches und VLANs?',['Schicht 2','Schicht 3','Schicht 4','Schicht 7'],0,'Sicherungsschicht mit MAC-Adressen.','Fachwissen AP2'],
+['Welcher Standard beschreibt VLAN-Tagging?',['IEEE 802.1Q','IEEE 802.3af','IEEE 802.11ac','IEEE 802.1X'],0,'802.1X ist die portbasierte Zugangskontrolle.','Fachwissen AP2'],
+['Welchen Port nutzt Kerberos?',['88','389','445','3389'],0,'389 LDAP, 445 SMB, 3389 RDP.','Fachwissen AP2'],
+['DHCP-Ablauf in richtiger Reihenfolge?',['Discover, Offer, Request, Acknowledge','Request, Offer, Discover, Acknowledge','Offer, Discover, Acknowledge, Request','Discover, Request, Offer, Acknowledge'],0,'Merkwort DORA.','Fachwissen AP2'],
+['DHCP-Server und Clients in verschiedenen Subnetzen – was wird benötigt?',['Ein DHCP-Relay-Agent auf dem Router','Ein zweiter DNS-Server','Ein Crossover-Kabel','Eine Reverse-Lookupzone'],0,'Broadcasts überschreiten keine Router.','Fachwissen AP2'],
+['Korrekte Kurzform von 2001:0db8:0000:0000:0000:0000:0000:0001?',['2001:db8::1','2001:db8:::1','2001:db8::0::1','21:db8::1'],0,':: darf nur einmal vorkommen.','Fachwissen AP2'],
+['Präfix für IPv6-Link-Local?',['fe80::/10','2000::/3','fd00::/8','ff00::/8'],0,'ff00::/8 ist Multicast.','Fachwissen AP2'],
+['Wohin gehört ein öffentlich erreichbarer Webserver?',['In eine DMZ','Ins interne Server-VLAN','Auf den Domänencontroller','Ins Gäste-WLAN'],0,'So bleibt das interne Netz bei einer Kompromittierung geschützt.','Fachwissen AP2'],
+['Welcher Dienst nutzt standardmäßig UDP?',['DHCP','SSH','SMB','LDAPS'],0,'DHCP: UDP 67/68.','Fachwissen AP2'],
+['Unterschied Access- und Trunk-Port?',['Access: ein VLAN untagged; Trunk: mehrere VLANs getaggt','Access nur für Router','Access verschlüsselt','Kein Unterschied'],0,'Trunks verbinden Switches und Router.','Fachwissen AP2']]},
+{id:'m11',t:'IT-Sicherheit & sicherer Serverbetrieb',d:'Schutzziele, Schutzbedarf, TOMs, Least Privilege, Tiering, LAPS, Kerberos, Härtung, Verschlüsselung und 802.1X.',cards:[
+['Schutzziele (CIA)','<b>Vertraulichkeit</b>, <b>Integrität</b>, <b>Verfügbarkeit</b>. Zu jeder Maßnahme das passende Schutzziel nennen können. Ergänzend: Authentizität, Verbindlichkeit.'],
+['Schutzbedarf (BSI)','Nach BSI IT-Grundschutz: <b>normal, hoch, sehr hoch</b> je Schutzziel. <b>Maximumprinzip</b>: Der höchste Schutzbedarf der betroffenen Anwendungen bestimmt den des Systems.'],
+['TOMs (DSGVO Art. 32)','Technische und organisatorische Maßnahmen, z. B. Zutritt (Serverraum), Zugang (Passwort, MFA), Zugriff (Berechtigungen), Weitergabe (Verschlüsselung), Verfügbarkeit (Backup, USV).'],
+['Least Privilege','Nur die Rechte, die wirklich gebraucht werden. Admins arbeiten mit normalem Konto und nutzen ein getrenntes Admin-Konto nur für Verwaltungsaufgaben.'],
+['Admin-Tiering','Tier 0 = DCs/AD, Tier 1 = Server, Tier 2 = Clients. Ein Domänen-Admin meldet sich <b>nie</b> an normalen Clients an – dort könnten Anmeldedaten abgegriffen werden.'],
+['Windows LAPS','Vergibt je Computer ein <b>eigenes, zufälliges lokales Administratorkennwort</b> und speichert es im AD bzw. Entra ID – verhindert die Ausbreitung über gleiche Kennwörter.'],
+['Kerberos','Standard-Authentifizierung im AD (Port 88). Der DC ist <b>KDC</b>: Der Client erhält ein <b>TGT</b> und damit Service-Tickets. Zeitabweichung max. <b>5 Minuten</b> (Standard) – darum <code>w32tm</code>. NTLM ist der ältere Fallback.'],
+['Kennwortrichtlinien','Default Domain Policy: Mindestlänge, Komplexität, Chronik, Kontosperrung. Abweichende Regeln für Gruppen: <b>Fine-Grained Password Policies</b> (PSO). Besser: lange Passphrasen + MFA.'],
+['Härtung','Unnötige Rollen/Dienste entfernen, Updates zeitnah, Firewall aktiv, <b>SMBv1 aus</b>, Server Core wo möglich, RDP einschränken, Protokollierung aktivieren.'],
+['Ransomware','Vorbeugen: Updates, Least Privilege, E-Mail-Filter, Phishing-Schulung, Segmentierung, <b>offline/unveränderliche Backups</b>, Notfallplan. Im Ernstfall: isolieren, melden, aus sauberem Backup wiederherstellen.'],
+['Verschlüsselung & Hash','<b>Symmetrisch</b> (ein Schlüssel, schnell, AES) vs. <b>asymmetrisch</b> (Schlüsselpaar, RSA). TLS arbeitet <b>hybrid</b>. BitLocker für Datenträger. <b>Hash</b> (SHA-256) prüft Integrität.'],
+['802.1X & NAC','Supplicant (Client) → Authenticator (Switch/AP) → Authentication Server (RADIUS, unter Windows <b>NPS</b>). Nur authentifizierte Geräte kommen ins Netz.']],
+q:[
+['RAID schützt vor Plattenausfall. Welches Schutzziel vor allem?',['Verfügbarkeit','Vertraulichkeit','Authentizität','Anonymität'],0,'Die Daten bleiben erreichbar.','BSI / Fachwissen'],
+['BitLocker auf einem Notebook schützt vor allem …',['die Vertraulichkeit bei Diebstahl','die Verfügbarkeit bei Stromausfall','die Integrität des DNS','die Geschwindigkeit'],0,'Ohne Schlüssel sind die Daten unlesbar.','Fachwissen AP2'],
+['Wozu dient ein Hashwert wie SHA-256?',['Integrität prüfen','Umkehrbar verschlüsseln','Komprimieren','IP-Adressen vergeben'],0,'Jede Änderung ergibt einen anderen Hash.','Fachwissen AP2'],
+['Warum meldet sich ein Domänen-Admin nicht an normalen Clients an?',['Seine Anmeldedaten könnten dort abgegriffen werden','Der Client startet sonst nicht','GPOs greifen dann nicht','Kerberos verbietet es'],0,'Grundidee des Tiering-Modells.','Microsoft-Empfehlung'],
+['Welches Problem löst Windows LAPS?',['Gleiche lokale Admin-Kennwörter auf vielen Rechnern','Fehlende DNS-Einträge','Volle Festplatten','Langsame Anmeldung'],0,'Jeder Rechner bekommt ein eigenes Kennwort.','Microsoft-Dokumentation'],
+['Warum ist synchrone Uhrzeit im AD wichtig?',['Kerberos lehnt Tickets bei zu großer Abweichung ab','Sonst vergibt DHCP keine Adressen','Sonst fällt RAID aus','Sonst werden Gruppen gelöscht'],0,'Standardtoleranz 5 Minuten.','Fachwissen AP2'],
+['Was stellt das KDC bei Kerberos zuerst aus?',['Ein Ticket Granting Ticket (TGT)','Ein SSL-Zertifikat','Eine DHCP-Lease','Ein GPO'],0,'Mit dem TGT holt der Client Service-Tickets.','Fachwissen AP2'],
+['Strengere Kennwortregeln nur für Admins – wie?',['Fine-Grained Password Policy (PSO)','Zweite Default Domain Policy','Reverse-Lookupzone','Gar nicht möglich'],0,'Per GPO gilt nur eine Kennwortrichtlinie pro Domäne.','Microsoft-Dokumentation'],
+['Welche Maßnahme ist organisatorisch?',['Phishing-Schulung','Festplattenverschlüsselung','Firewall-Regel','RAID 1'],0,'Die anderen sind technische Maßnahmen.','DSGVO Art. 32'],
+['Wonach richtet sich der Schutzbedarf beim Maximumprinzip?',['Nach dem höchsten Schutzbedarf der betroffenen Anwendungen','Nach dem Durchschnitt','Nach dem niedrigsten Wert','Nach der Serveranzahl'],0,'Ein kritischer Dienst macht den ganzen Server kritisch.','BSI IT-Grundschutz'],
+['Erster Schritt bei Ransomware-Befall?',['Systeme isolieren und Vorfall melden','Lösegeld zahlen','Backups an das infizierte System anschließen','Weiterarbeiten'],0,'Ausbreitung stoppen, Backups schützen.','BSI'],
+['Welche Rolle hat NPS bei 802.1X?',['RADIUS-Server','Supplicant','Authenticator','DHCP-Relay'],0,'NPS ist der Network Policy Server von Microsoft.','Fachwissen AP2'],
+['Wie verschlüsselt TLS?',['Hybrid: asymmetrisch für den Schlüsselaustausch, symmetrisch für die Daten','Nur symmetrisch mit festem Schlüssel','Nur Hashing','Gar nicht'],0,'Schnell und trotzdem sicherer Schlüsselaustausch.','Fachwissen AP2'],
+['Welches Protokoll sollte deaktiviert sein?',['SMBv1','SMBv3','Kerberos','TLS 1.3'],0,'SMBv1 ist veraltet und unsicher.','Microsoft-Empfehlung']]}];
+const SCEN=[
+{t:'Montagmorgen: Keine Anmeldung möglich',m:'w2',s:'Mehrere Clients melden „Es ist kein Anmeldeserver verfügbar“. Der DC läuft, Ping auf die IP 192.168.153.10 funktioniert.',steps:[
+['Was prüfst du zuerst?',['DNS-Server-Eintrag der Clients (zeigt er auf den DC?)','Druckertreiber','BitLocker-Status','Kontingente'],0,'Clients finden den DC über SRV-Einträge im DNS. Steht dort z. B. der Router, gibt es keine AD-Einträge.'],
+['Der Client hat als DNS 192.168.153.1 (Router). Woher kommt das?',['DHCP-Option 006 ist falsch gesetzt','Aus der GPO für Laufwerke','Aus dem Profil','Vom Drucker'],0,'Option 006 im Bereich auf 192.168.153.10 korrigieren.'],
+['Wie übernimmt der Client die korrigierte Option sofort?',['ipconfig /release und /renew','gpresult /r','chkdsk','w32tm /resync'],0,'Neues Lease holt die neuen Optionen.']]},
+{t:'Laufwerk S: fehlt',m:'w7',s:'Das GPO „U_Laufwerk_S“ ist erstellt und mit der OU „Vertrieb“ verknüpft. Benutzer M. Muster sieht kein Laufwerk S:.',steps:[
+['Erster Diagnoseschritt am Client?',['gpresult /r','ipconfig /flushdns','dcdiag','nslookup'],0,'Zeigt, ob das GPO angewendet oder gefiltert wurde.'],
+['gpresult listet das GPO nicht. Benutzerkonto liegt im Container „Users“. Lösung?',['Benutzer in die OU Vertrieb verschieben','GPO löschen','DHCP neu starten','Server umbenennen'],0,'Container „Users“ ist keine OU; dort lassen sich keine GPOs verknüpfen.'],
+['Nach dem Verschieben: Wie wird das GPO sofort aktiv?',['gpupdate /force, ggf. ab- und anmelden','Router neu starten','Schattenkopie wiederherstellen','Kontingent löschen'],0,'Benutzereinstellungen greifen bei der Anmeldung bzw. Aktualisierung.']]},
+{t:'Neuer DHCP-Server verteilt nichts',m:'w4',s:'Rolle DHCP auf SRV02 installiert, Bereich 192.168.153.100–200 angelegt. Clients erhalten 169.254.x.x.',steps:[
+['Was bedeutet 169.254.x.x?',['APIPA: kein DHCP-Angebot erhalten','Korrekte Adresse','IPv6-Adresse','Reservierung'],0,'Der Client hat keine Antwort erhalten.'],
+['Bereich ist mit rotem Pfeil markiert. Was fehlt?',['Bereich ist nicht aktiviert','Reverse-Zone','Profilpfad','Druckerpool'],0,'Bereich aktivieren.'],
+['Server zeigt ebenfalls einen roten Pfeil. Was fehlt?',['Autorisierung im AD','Lizenz','BitLocker','WSUS'],0,'In der Domäne muss DHCP autorisiert sein.']]},
+{t:'Zugriff verweigert auf Vertriebsordner',m:'w6',s:'Benutzerin S. Klein ist in GG_Vertrieb → DL_Vertrieb_RW (NTFS: Ändern). Freigabe „Vertrieb“: Jeder = Lesen. Sie kann Dateien öffnen, aber nicht speichern.',steps:[
+['Warum kann sie nicht speichern?',['Freigabe Lesen ist restriktiver als NTFS Ändern','NTFS ist kumulativ','Kein DNS','Profil zu groß'],0,'Über das Netz gilt die restriktivere Kombination.'],
+['Beste Korrektur?',['Freigabe auf Authentifizierte Benutzer: Ändern/Vollzugriff, Feinsteuerung per NTFS','NTFS auf Vollzugriff für Jeder','Benutzerin zu Domänen-Admins','Ordner verstecken'],0,'Best Practice: Freigabe offen, NTFS restriktiv.'],
+['Sie war gerade erst in die Gruppe aufgenommen worden. Was ist zusätzlich nötig?',['Ab- und wieder anmelden (neues Kerberos-Ticket)','Server neu installieren','DHCP-Lease erneuern','DFS löschen'],0,'Gruppenmitgliedschaften stehen im Zugriffstoken.']]},
+{t:'Kerberos-Fehler nach VM-Wiederherstellung',m:'w10',s:'Nach dem Zurücksetzen eines Snapshots melden Clients Anmeldefehler. Die Uhr des DC geht 20 Minuten nach.',steps:[
+['Warum scheitert die Anmeldung?',['Zeitabweichung über 5 Minuten bricht Kerberos','DNS-Weiterleitung fehlt','Kontingent voll','Drucker offline'],0,'Kerberos-Tickets sind zeitgebunden.'],
+['Wie prüfst du die Zeitquelle?',['w32tm /query /status','gpresult /r','ipconfig /all','repadmin /showrepl'],0,'Zeigt Quelle und Stratum.'],
+['Welcher DC sollte extern synchronisieren?',['PDC-Emulator der Stammdomäne','Jeder DC einzeln','Kein DC','Der DHCP-Server'],0,'Restliche Domänenmitglieder folgen der Domänenhierarchie.']]}
+];
+const TERM={
+'hostname':'DC01',
+'ipconfig':'Ethernet-Adapter Ethernet:\n   IPv4-Adresse  . . . . . . . . . . : 192.168.153.10\n   Subnetzmaske  . . . . . . . . . . : 255.255.255.0\n   Standardgateway . . . . . . . . . : 192.168.153.1',
+'ipconfig /all':'   Hostname  . . . . . . . . . . . . : DC01\n   Primäres DNS-Suffix . . . . . . . : schulung.int\n   DHCP aktiviert. . . . . . . . . . : Nein\n   IPv4-Adresse  . . . . . . . . . . : 192.168.153.10(Bevorzugt)\n   DNS-Server  . . . . . . . . . . . : 127.0.0.1',
+'ipconfig /flushdns':'Der DNS-Auflösungscache wurde geleert.',
+'ipconfig /registerdns':'Die Registrierung der DNS-Ressourceneinträge für alle Adapter wurde initiiert.',
+'nslookup dc01.schulung.int':'Server:  dc01.schulung.int\nAddress:  127.0.0.1\n\nName:    dc01.schulung.int\nAddress:  192.168.153.10',
+'nslookup 192.168.153.10':'Server:  dc01.schulung.int\nAddress:  127.0.0.1\n\nName:    dc01.schulung.int\nAddress:  192.168.153.10',
+'dcdiag':'Domänencontrollerdiagnose\n...\n   Test wird gestartet: Connectivity\n      ......................... Der Test Connectivity für DC01 wurde erfolgreich ausgeführt.\n   Test wird gestartet: Replications\n      ......................... Der Test Replications für DC01 wurde erfolgreich ausgeführt.\n   Test wird gestartet: Advertising\n      ......................... Der Test Advertising für DC01 wurde erfolgreich ausgeführt.',
+'netdom query fsmo':'Schemamaster                DC01.schulung.int\nDomänennamen-Master         DC01.schulung.int\nPDC                         DC01.schulung.int\nRID-Pool-Manager            DC01.schulung.int\nInfrastrukturmaster         DC01.schulung.int\nDer Befehl wurde erfolgreich ausgeführt.',
+'gpupdate /force':'Die Richtlinie wird aktualisiert...\n\nDie Aktualisierung der Computerrichtlinie wurde erfolgreich abgeschlossen.\nDie Aktualisierung der Benutzerrichtlinie wurde erfolgreich abgeschlossen.',
+'gpresult /r':'BENUTZEREINSTELLUNGEN\n--------------------\n    CN=Max Muster,OU=Vertrieb,DC=schulung,DC=int\n    Angewendete Gruppenrichtlinienobjekte\n    -------------------------------------\n        U_Laufwerk_S\n        Default Domain Policy',
+'w32tm /query /status':'Sprungindikator: 0(keine Warnung)\nStratum: 2\nQuelle: ptbtime1.ptb.de\nLetzte erfolgr. Synchronisierungszeit: 06.11.2026 09:12:44',
+'repadmin /replsummary':'Replikationszusammenfassung – Startzeit: 2026-11-06 09:15:02\nQuell-DSA    größtes Delta   Fehler\n DC01        05m:12s         0 /  5    0',
+'get-dhcpserverv4scope':'ScopeId        SubnetMask     Name     State   StartRange       EndRange\n-------        ----------     ----     -----   ----------       --------\n192.168.153.0  255.255.255.0  Clients  Active  192.168.153.100  192.168.153.200',
+'get-aduser -filter *':'Name          SamAccountName  Enabled\n----          --------------  -------\nAdministrator Administrator   True\nGast          Gast            False\nMax Muster    mmuster         True\nSabine Klein  sklein          True',
+'get-windowsfeature ad-domain-services':'Display Name                         Name                State\n------------                         ----                -----\n[X] Active Directory-Domänendienste  AD-Domain-Services  Installed',
+'whoami':'schulung\\administrator'
+};
+const TASKS=[
+['Zeige die IP-Konfiguration inkl. DNS-Server.','ipconfig /all'],
+['Prüfe den Zustand des Domänencontrollers.','dcdiag'],
+['Finde heraus, welcher DC den PDC-Emulator hält.','netdom query fsmo'],
+['Teste die Reverse-Auflösung von 192.168.153.10.','nslookup 192.168.153.10'],
+['Wende Gruppenrichtlinien sofort an.','gpupdate /force'],
+['Zeige die angewendeten GPOs des Benutzers.','gpresult /r'],
+['Prüfe die Zeitquelle des Servers.','w32tm /query /status'],
+['Lass dir die DHCP-Bereiche per PowerShell anzeigen.','get-dhcpserverv4scope']
+];
+
+const KEY='wsaa-v10';
+let S;try{S=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){S={}}
+S=Object.assign({xp:0,seen:{},best:{},ord:{},scen:{},term:[],exam:0},S);
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const LV=['Praktikant','Helpdesk','Junior-Admin','Systemadministrator','Senior-Admin','Domänen-Architekt'];
+function lvl(){const l=Math.min(LV.length-1,Math.floor(S.xp/300));return{l,name:LV[l],p:l==LV.length-1?100:(S.xp%300)/3}}
+function addXp(n,msg){S.xp+=n;save();drawXp();if(msg)toast(msg+' +'+n+' XP')}
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),1800)}
+function drawXp(){const v=lvl();$('xp').innerHTML=`<span>Level ${v.l+1} · <b>${v.name}</b></span><div class="xpbar"><i style="width:${v.p}%"></i></div><b>${S.xp} XP</b>`}
+function modProg(m){const c=(S.seen[m.id]||[]).length/m.cards.length,q=(S.best[m.id]||0)/100,o=m.ord&&m.ord.length?(S.ord[m.id]?1:0):null;const parts=o===null?[c,q]:[c,q,o];return Math.round(parts.reduce((a,b)=>a+b,0)/parts.length*100)}
+const NAV=[['home','Lernpfad'],['scen','Fehlersuche'],['term','Konsole'],['exam','Abschlussprüfung'],['info','Hinweise']];
+let cur='home';
+function go(v,a,b){cur=v;$('nav').innerHTML=NAV.map(([k,l])=>`<button class="${k==v||(v=='mod'&&k=='home')?'on':''}" onclick="go('${k}')">${l}</button>`).join('');scrollTo(0,0);({home,mod,scen,term,exam,info})[v](a,b)}
+const A=()=>$('app');
+
+function home(){
+const tc=MODS.reduce((a,m)=>a+m.cards.length,0),tq=MODS.reduce((a,m)=>a+m.q.length,0);
+const tot=Math.round(MODS.reduce((a,m)=>a+modProg(m),0)/MODS.length);
+const card=(m,i)=>{const p=modProg(m),ihk=m.id[0]=='m';return `<div class="mod" onclick="go('mod','${m.id}','cards')">${p>=100?'<span class="badge">✓ Gemeistert</span>':ihk?'<span class="badge ihk">IHK</span>':''}<div class="no">MODUL ${i+1}</div><h3>${esc(m.t)}</h3><p>${esc(m.d)}</p><div class="meta"><span>${m.cards.length} Karten · ${m.q.length} Fragen</span><span>${p}%</span></div><div class="prog"><i style="width:${p}%"></i></div></div>`};
+const win=MODS.filter(m=>m.id[0]=='w'),ihk=MODS.filter(m=>m.id[0]=='m');
+A().innerHTML=`<section class="hero"><div><span class="tag">Fachinformatiker Systemintegration</span><h1>Windows Server Schritt für Schritt</h1><p>Vom ersten Start bis zur fertigen Domäne <code>schulung.int</code>: Lernkarten, Quiz, Abläufe sortieren, Fehlersuche und eine simulierte Konsole – nach deinem Kursskript aufgebaut, ergänzt um IHK-Prüfungswissen.</p><div class="row"><button class="btn pri" onclick="next()">${tot?'Weiterlernen':'Jetzt starten'} →</button><button class="btn" onclick="go('exam')">Prüfung simulieren</button></div></div>${heroSvg()}</section>
+<div class="stats"><div class="stat"><b>${tot}%</b><span>Gesamtfortschritt</span></div><div class="stat"><b>${MODS.length}</b><span>Module</span></div><div class="stat"><b>${tc}</b><span>Lernkarten</span></div><div class="stat"><b>${tq}</b><span>Quizfragen</span></div></div>
+<h2>Teil A · Windows Server (Kursinhalt)</h2><p class="sub">In Reihenfolge des Aufbaus einer Domäne – jedes Modul baut auf dem vorherigen auf.</p><div class="grid">${win.map(card).join('')}</div>
+<h2>Teil B · IHK-Prüfungswissen</h2><p class="sub">Ergänzende Themen für AP1/AP2 und die betriebliche Projektarbeit.</p><div class="grid">${ihk.map((m,i)=>card(m,i+win.length)).join('')}</div>`}
+function next(){const m=MODS.find(m=>modProg(m)<100)||MODS[0];go('mod',m.id,(S.seen[m.id]||[]).length<m.cards.length?'cards':'quiz')}
+function heroSvg(){return `<svg viewBox="0 0 320 220" style="width:100%;max-height:230px"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs>
+<rect x="110" y="10" width="100" height="58" rx="10" fill="#16213a" stroke="url(#g)" stroke-width="2"/><text x="160" y="35" fill="#e8eefc" font-size="13" text-anchor="middle" font-weight="700">DC01</text><text x="160" y="53" fill="#9fb0d3" font-size="10" text-anchor="middle">AD DS · DNS</text>
+<rect x="10" y="130" width="90" height="50" rx="10" fill="#16213a" stroke="#2a3a5e" stroke-width="2"/><text x="55" y="152" fill="#e8eefc" font-size="12" text-anchor="middle" font-weight="700">SRV02</text><text x="55" y="168" fill="#9fb0d3" font-size="10" text-anchor="middle">DHCP · Druck</text>
+<rect x="115" y="150" width="90" height="50" rx="10" fill="#16213a" stroke="#2a3a5e" stroke-width="2"/><text x="160" y="172" fill="#e8eefc" font-size="12" text-anchor="middle" font-weight="700">FS01</text><text x="160" y="188" fill="#9fb0d3" font-size="10" text-anchor="middle">DFS · Profile</text>
+<rect x="220" y="130" width="90" height="50" rx="10" fill="#16213a" stroke="#2a3a5e" stroke-width="2"/><text x="265" y="152" fill="#e8eefc" font-size="12" text-anchor="middle" font-weight="700">CLIENT</text><text x="265" y="168" fill="#9fb0d3" font-size="10" text-anchor="middle">GPO · Laufwerk S:</text>
+<g stroke="url(#g)" stroke-width="2" stroke-dasharray="5 5" fill="none"><path d="M160 68V150"/><path d="M140 68L55 130"/><path d="M180 68L265 130"/></g>
+<text x="160" y="105" fill="#22d3ee" font-size="10" text-anchor="middle">192.168.153.0/24</text></svg>`}
+
+let MS={};
+function mod(id,tab){const m=MODS.find(x=>x.id==id),i=MODS.indexOf(m);MS={m,tab};
+const tabs=[['cards','Lernkarten'],['quiz','Quiz'],...(m.ord&&m.ord.length?[['ord','Ablauf sortieren']]:[])];
+A().innerHTML=`<div class="crumb" onclick="go('home')">← Lernpfad</div><div class="row" style="margin-top:8px"><div><span class="tag">Modul ${i+1} von ${MODS.length}</span><h2 style="margin:2px 0">${esc(m.t)}</h2><p class="sub" style="margin:0">${esc(m.d)}</p></div><div class="sp"></div><span class="pill">${modProg(m)}% erledigt</span></div>
+<div class="tabs">${tabs.map(([k,l])=>`<button class="btn ${k==tab?'pri':''}" onclick="go('mod','${id}','${k}')">${l}</button>`).join('')}</div><div class="panel" id="mp"></div>
+<div class="row" style="margin-top:14px">${i>0?`<button class="btn" onclick="go('mod','${MODS[i-1].id}','cards')">← ${esc(MODS[i-1].t)}</button>`:''}<div class="sp"></div>${i<MODS.length-1?`<button class="btn" onclick="go('mod','${MODS[i+1].id}','cards')">${esc(MODS[i+1].t)} →</button>`:''}</div>`;
+({cards,quiz,ord})[tab](m)}
+
+function cards(m,k=0){const c=m.cards[k],s=S.seen[m.id]||[];
+$('mp').innerHTML=`<div class="qhead"><span>Karte ${k+1} / ${m.cards.length}</span><span>${s.length} gelernt</span></div><div class="prog"><i style="width:${s.length/m.cards.length*100}%"></i></div>
+<div class="flip" id="fl" onclick="this.classList.toggle('on')"><div class="in"><div class="face front"><h3>${esc(c[0])}</h3><small>Tippen zum Umdrehen · Leertaste</small></div><div class="face back"><h4>${esc(c[0])}</h4><div>${c[1]}</div></div></div></div>
+<div class="row"><button class="btn" ${k?'':'disabled'} onclick="cards(MS.m,${k-1})">← Zurück</button><div class="sp"></div><button class="btn" onclick="learn(${k},0)">Nochmal ansehen</button><button class="btn pri" onclick="learn(${k},1)">Kann ich ✓</button></div>`;MS.k=k}
+function learn(k,ok){const m=MS.m,s=S.seen[m.id]=S.seen[m.id]||[];if(ok&&!s.includes(k)){s.push(k);addXp(5)}save();
+if(k<m.cards.length-1)cards(m,k+1);else{const r=m.cards.map((_,i)=>i).find(i=>!s.includes(i));if(r!==undefined){toast('Noch offene Karten – weiter geht es');cards(m,r)}else{$('mp').innerHTML=`<div class="result"><h2>Alle Karten gelernt 🎉</h2><p class="sub">Jetzt im Quiz testen, ob es sitzt.</p><button class="btn pri" onclick="go('mod','${m.id}','quiz')">Zum Quiz →</button></div>`}}}
+
+function mkQ(q){const o=shuf(q[1].map((t,i)=>({t,ok:i==q[2]})));return{q:q[0],o,e:q[3],s:q[4]}}
+let QZ;
+function quiz(m){QZ={list:shuf(m.q).map(mkQ),i:0,pts:0,done:false,mid:m.id,el:'mp',fin:quizEnd};qDraw()}
+function qDraw(){const z=QZ,q=z.list[z.i];
+$(z.el).innerHTML=`<div class="qhead"><span>Frage ${z.i+1} / ${z.list.length}${q.mod?' · '+esc(q.mod):''}</span><span>${z.pts} richtig${z.timer?' · <b id="tm"></b>':''}</span></div><div class="prog"><i style="width:${z.i/z.list.length*100}%"></i></div>
+<div class="qtext">${esc(q.q)}</div>${q.o.map((o,i)=>`<button class="opt" id="o${i}" onclick="qAns(${i})"><b>${'ABCD'[i]}</b> &nbsp;${esc(o.t)}</button>`).join('')}<div id="ex"></div>`;z.done=false;if(z.timer)tick()}
+function qAns(i){const z=QZ;if(z.done)return;z.done=true;const q=z.list[z.i];q.o.forEach((o,j)=>{const b=$('o'+j);b.disabled=true;if(o.ok)b.classList.add('ok');else if(j==i)b.classList.add('bad')});
+const ok=q.o[i]&&q.o[i].ok;if(ok){z.pts++;addXp(10)}q.right=ok;
+$('ex').innerHTML=(z.exam?'':`<div class="expl"><b>${ok?'Richtig!':'Leider falsch.'}</b> ${esc(q.e)}<div class="src">Quelle: ${esc(q.s)}</div></div>`)+`<div class="row" style="margin-top:14px"><div class="sp"></div><button class="btn pri" id="nx" onclick="qNext()">${z.i<z.list.length-1?'Weiter →':'Auswerten'}</button></div>`;if(z.exam)setTimeout(qNext,350)}
+function qNext(){const z=QZ;if(z.i<z.list.length-1){z.i++;qDraw()}else z.fin()}
+function ring(p){const c=2*Math.PI*62,col=p>=80?'#22c55e':p>=50?'#f59e0b':'#ef4444';return `<svg class="ring" viewBox="0 0 150 150"><circle cx="75" cy="75" r="62" stroke="#2a3a5e" stroke-width="12" fill="none"/><circle cx="75" cy="75" r="62" stroke="${col}" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-p/100)}" transform="rotate(-90 75 75)"/><text x="75" y="84" text-anchor="middle" fill="#e8eefc" font-size="28" font-weight="700">${p}%</text></svg>`}
+function quizEnd(){const z=QZ,p=Math.round(z.pts/z.list.length*100),m=MODS.find(x=>x.id==z.mid);if(p>(S.best[z.mid]||0)){S.best[z.mid]=p;save()}if(p==100)addXp(30,'Perfekt!');
+const wrong=z.list.filter(q=>!q.right);
+$('mp').innerHTML=`<div class="result">${ring(p)}<h2>${p>=80?'Stark!':p>=50?'Solide – da geht noch was':'Wiederholen lohnt sich'}</h2><p class="sub">${z.pts} von ${z.list.length} richtig · Bestwert ${S.best[z.mid]}%</p><div class="row" style="justify-content:center"><button class="btn" onclick="go('mod','${z.mid}','cards')">Karten wiederholen</button><button class="btn pri" onclick="quiz(MS.m)">Neuer Durchgang</button></div></div>${wrong.length?`<h3>Zum Nacharbeiten</h3>${wrong.map(q=>`<div class="expl"><b>${esc(q.q)}</b><br>✓ ${esc(q.o.find(o=>o.ok).t)} – ${esc(q.e)}</div>`).join('')}`:''}`}
+
+let OR;
+function ord(m,k=0){const o=m.ord[k];OR={m,k,right:o[1],cur:shuf(o[1])};while(o[1].length>1&&OR.cur.join()==o[1].join())OR.cur=shuf(o[1]);oDraw()}
+function oDraw(r){$('mp').innerHTML=`<div class="qtext">${esc(OR.m.ord[OR.k][0])}</div><p class="sub">Bringe die Schritte mit ▲ ▼ in die richtige Reihenfolge.</p><ul class="drag">${OR.cur.map((t,i)=>`<li class="${r?(t==OR.right[i]?'ok':'bad'):''}"><span class="n">${i+1}</span><span class="t">${esc(t)}</span><button onclick="mv(${i},-1)" ${i?'':'disabled'}>▲</button><button onclick="mv(${i},1)" ${i<OR.cur.length-1?'':'disabled'}>▼</button></li>`).join('')}</ul><div class="row"><button class="btn" onclick="ord(OR.m,OR.k)">Neu mischen</button><div class="sp"></div><button class="btn pri" onclick="oCheck()">Prüfen</button></div><div id="ex"></div>`}
+function mv(i,d){const c=OR.cur;[c[i],c[i+d]]=[c[i+d],c[i]];oDraw()}
+function oCheck(){const n=OR.cur.filter((t,i)=>t==OR.right[i]).length,all=n==OR.right.length;oDraw(true);
+$('ex').innerHTML=`<div class="expl">${all?'<b>Perfekt – alle Schritte richtig!</b>':`<b>${n} von ${OR.right.length} an der richtigen Stelle.</b> Rot markierte Schritte verschieben und erneut prüfen.`}</div>`;
+if(all&&!S.ord[OR.m.id]){S.ord[OR.m.id]=1;addXp(25,'Ablauf gemeistert')}}
+
+let SC;
+function scen(i){if(i===undefined){A().innerHTML=`<h2>Fehlersuche im Betrieb</h2><p class="sub">Realistische Störungen aus dem Admin-Alltag – Schritt für Schritt zur Lösung. Typisch für das Fachgespräch.</p><div class="grid">${SCEN.map((s,k)=>{const m=MODS.find(x=>x.id==s.m);return `<div class="mod" onclick="go('scen',${k})">${S.scen[k]?'<span class="badge">✓ Gelöst</span>':''}<div class="no">FALL ${k+1} · ${esc(m?m.t:'')}</div><h3>${esc(s.t)}</h3><p>${esc(s.s)}</p></div>`}).join('')}</div>`;return}
+SC={i,st:0,ok:0};scDraw()}
+function scDraw(){const s=SCEN[SC.i],st=s.steps[SC.st];const o=shuf(st[1].map((t,i)=>({t,ok:i==st[2]})));SC.o=o;
+A().innerHTML=`<div class="crumb" onclick="go('scen')">← Alle Fälle</div><h2>${esc(s.t)}</h2><div class="scen">🎫 <b>Ticket:</b> ${esc(s.s)}</div><div class="panel"><div class="qhead"><span>Schritt ${SC.st+1} / ${s.steps.length}</span></div><div class="qtext">${esc(st[0])}</div>${o.map((x,i)=>`<button class="opt" id="o${i}" onclick="scAns(${i})">${esc(x.t)}</button>`).join('')}<div id="ex"></div></div>`}
+function scAns(i){const s=SCEN[SC.i],st=s.steps[SC.st];SC.o.forEach((x,j)=>{const b=$('o'+j);b.disabled=true;if(x.ok)b.classList.add('ok');else if(j==i)b.classList.add('bad')});const ok=SC.o[i].ok;if(ok)SC.ok++;
+const last=SC.st==s.steps.length-1;
+$('ex').innerHTML=`<div class="expl"><b>${ok?'Richtig.':'Nicht ganz.'}</b> ${esc(st[3])}</div><div class="row" style="margin-top:12px"><div class="sp"></div><button class="btn pri" onclick="${last?'scEnd()':'SC.st++;scDraw()'}">${last?'Fall abschließen':'Nächster Schritt →'}</button></div>`}
+function scEnd(){const s=SCEN[SC.i];if(SC.ok==s.steps.length&&!S.scen[SC.i]){S.scen[SC.i]=1;addXp(40,'Ticket gelöst')}save();
+A().innerHTML=`<div class="panel result"><h2>${SC.ok==s.steps.length?'Ticket gelöst ✅':'Ticket abgeschlossen'}</h2><p class="sub">${SC.ok} von ${s.steps.length} Schritten auf Anhieb richtig.</p><div class="row" style="justify-content:center"><button class="btn" onclick="go('scen',${SC.i})">Nochmal</button><button class="btn pri" onclick="go('scen')">Weitere Fälle</button></div></div>`}
+
+function term(){const done=new Set(S.term);
+A().innerHTML=`<h2>Admin-Konsole (Simulation)</h2><p class="sub">Übe die wichtigsten Diagnosebefehle auf <code>DC01.schulung.int</code>. Die Ausgaben sind vorbereitete Beispiele – kein echter Server.</p>
+<div class="two"><div class="term"><div class="tb"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i>&nbsp;Administrator: Windows PowerShell</div><pre id="out">Windows PowerShell\nCopyright (C) Microsoft Corporation.\n\nTipp: "help" zeigt alle Befehle.\n</pre><div class="inp">PS C:\\&gt;<input id="cmd" autocomplete="off" spellcheck="false" placeholder="Befehl eingeben …"></div></div>
+<div><h3 style="margin-top:0">Aufträge</h3>${TASKS.map((t,i)=>`<div class="task ${done.has(t[1])?'done':''}" id="tk${i}">${done.has(t[1])?'✓ ':''}${esc(t[0])}</div>`).join('')}<p class="note">${done.size} von ${TASKS.length} erledigt. Groß-/Kleinschreibung spielt keine Rolle.</p></div></div>`;
+const inp=$('cmd'),out=$('out');inp.focus();inp.onkeydown=e=>{if(e.key!='Enter')return;const raw=inp.value.trim(),c=raw.toLowerCase().replace(/\s+/g,' ');inp.value='';if(!c)return;
+let r;if(c=='help')r='Verfügbare Befehle:\n  '+Object.keys(TERM).join('\n  ')+'\n  cls';else if(c=='cls'||c=='clear'){out.textContent='';return}else r=TERM[c]||`Der Begriff "${raw.split(' ')[0]}" wird nicht erkannt oder ist hier nicht simuliert. "help" zeigt die verfügbaren Befehle.`;
+out.textContent+=`PS C:\\> ${raw}\n${r}\n\n`;out.scrollTop=1e9;
+const t=TASKS.findIndex(t=>t[1]==c);if(t>-1&&!S.term.includes(c)){S.term.push(c);addXp(15,'Auftrag erledigt');const el=$('tk'+t);el.classList.add('done');el.textContent='✓ '+TASKS[t][0]}}}
+
+function exam(){A().innerHTML=`<div class="panel"><span class="tag">Prüfungsmodus</span><h2 style="margin-top:4px">Abschlussprüfung</h2><p class="sub">30 zufällige Fragen aus allen ${MODS.length} Modulen, 30 Minuten Zeit. Erklärungen gibt es erst am Ende – wie in der echten Prüfung. Ab 50 % bestanden, ab 92 % „sehr gut“.</p><p>Bisheriger Bestwert: <b>${S.exam}%</b></p><button class="btn pri" onclick="exStart()">Prüfung starten</button></div>`}
+function exStart(){const all=[];MODS.forEach(m=>m.q.forEach(q=>all.push(Object.assign(mkQ(q),{mod:m.t}))));
+QZ={list:shuf(all).slice(0,30),i:0,pts:0,el:'app',exam:true,timer:Date.now()+30*60e3,fin:exEnd};qDraw()}
+function tick(){const e=$('tm');if(!e||!QZ.timer)return;const s=Math.max(0,Math.round((QZ.timer-Date.now())/1e3));e.textContent=`⏱ ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;if(!s){exEnd();return}clearTimeout(QZ.t);QZ.t=setTimeout(tick,1000)}
+function exEnd(){const z=QZ;clearTimeout(z.t);z.timer=0;const p=Math.round(z.pts/z.list.length*100);if(p>S.exam){S.exam=p;save()}addXp(z.pts*2);
+const note=p>=92?'sehr gut (1)':p>=81?'gut (2)':p>=67?'befriedigend (3)':p>=50?'ausreichend (4)':p>=30?'mangelhaft (5)':'ungenügend (6)';
+const by={};z.list.forEach(q=>{by[q.mod]=by[q.mod]||[0,0];by[q.mod][1]++;if(q.right)by[q.mod][0]++});
+A().innerHTML=`<div class="panel result">${ring(p)}<h2>${p>=50?'Bestanden':'Nicht bestanden'} – ${note}</h2><p class="sub">${z.pts} von ${z.list.length} richtig · Notenschlüssel nach IHK-Punkteskala</p><button class="btn pri" onclick="exStart()">Neue Prüfung</button></div>
+<h3>Ergebnis nach Modul</h3><div class="grid">${Object.entries(by).map(([k,v])=>`<div class="stat"><b>${v[0]}/${v[1]}</b><span>${esc(k)}</span><div class="prog"><i style="width:${v[0]/v[1]*100}%"></i></div></div>`).join('')}</div>
+<h3>Alle Fragen mit Lösung</h3>${z.list.map((q,i)=>`<div class="expl" style="border-color:${q.right?'var(--ok)':'var(--bad)'}"><b>${i+1}. ${esc(q.q)}</b><br>${q.right?'✓':'✗'} Richtig: ${esc(q.o.find(o=>o.ok).t)}<br><span class="src">${esc(q.e)}</span></div>`).join('')}`}
+
+function info(){A().innerHTML=`<div class="panel"><h2 style="margin-top:0">Hinweise zum Lernspiel</h2>
+<p><b>Teil A (Module 1–10)</b> folgt deinem Kursskript „Windows Server Installation“ Teil 1–4. Die Scans waren teils schwer lesbar; wo das Skript lückenhaft war, sind Inhalte mit allgemeinem Fachwissen ergänzt und als „Ergänzung“ gekennzeichnet. Bei Abweichungen gilt das Skript deines Kurses.</p>
+<p><b>Teil B (Module 11–14)</b> deckt IHK-Prüfungswissen ab (Projektarbeit, Server/Speicher, Netzwerke, IT-Sicherheit). Fristen, Umfang und Regeln deiner zuständigen IHK bitte immer dort prüfen.</p>
+<p><b>Selbst üben:</b> Spiel und Konsole ersetzen keine echte Serverpraxis. Baue die Abläufe in einer <b>isolierten Testumgebung</b> nach (z. B. zwei VMs in einem internen Netz) – nie im Firmennetz, da ein Test-DHCP echte Clients stören kann.</p>
+<p>Dein Fortschritt wird lokal im Browser gespeichert.</p><button class="btn" onclick="if(confirm('Gesamten Fortschritt löschen?')){localStorage.removeItem(KEY);location.reload()}">Fortschritt zurücksetzen</button></div>`}
+
+document.addEventListener('keydown',e=>{if(e.target.tagName=='INPUT')return;const f=$('fl');if(f&&e.code=='Space'){e.preventDefault();f.classList.toggle('on')}
+if(QZ&&$('o0')&&!QZ.done&&['1','2','3','4','a','b','c','d'].includes(e.key.toLowerCase())){const k='1234'.indexOf(e.key)>-1?'1234'.indexOf(e.key):'abcd'.indexOf(e.key.toLowerCase());if(cur!='scen')qAns(k)}});
+drawXp();go('home');
+
+</script>
+</body>
+</html>
